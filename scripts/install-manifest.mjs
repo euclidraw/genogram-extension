@@ -1,3 +1,4 @@
+import {commandNames} from '../src/model.js';
 import { createHash } from 'node:crypto';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { createPackageManifest } from '../src/manifest.js';
@@ -28,10 +29,10 @@ export async function createInstallManifest(outDir = new URL('dist/', root)) {
     sha256: createHash('sha256').update(bundle).digest('hex'),
     aspectIds: contract.provides.aspects,
     capabilities: {
-      readAspects: [`${metadata.id}.note`, 'core.transform', 'core.bounds'],
-      writeAspects: [`${metadata.id}.note`, 'core.transform', 'core.bounds'],
-      services: ['canvas.creation'],
-      commands: [`${metadata.id}:add-note`],
+      readAspects: [...contract.provides.aspects, 'core.transform', 'core.bounds'],
+      writeAspects: [...contract.provides.aspects, 'core.transform', 'core.bounds'],
+      services: ['canvas.creation', 'canvas.active-tool-surface', 'canvas.frames'],
+      commands: commandNames.map(name => `${metadata.id}:${name}`),
     },
   };
   return { manifest, manifestText: `${JSON.stringify(manifest, null, 2)}\n`, bundle };

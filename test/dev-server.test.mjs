@@ -48,7 +48,7 @@ test('dev server rebuilds on change, serves a matching manifest and bundle, and 
     assert.equal(manifest.sha256, createHash('sha256').update(bundle).digest('hex'));
     assert.equal(first.sha256, manifest.sha256);
 
-    await writeFile(source, original.replace("'작은 생각'", "'바뀐 생각'"));
+    await writeFile(source, original.replace("내담자·인물 추가", "바뀐 생각"));
     const second = await stream.next('reload');
     assert.ok(second.revision > first.revision);
     assert.notEqual(second.sha256, first.sha256);

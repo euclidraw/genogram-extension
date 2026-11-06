@@ -1,7 +1,7 @@
 {
   "apiVersion": 2,
-  "id": "example.sticky-notes",
-  "version": "0.3.0",
+  "id": "diagram.genogram",
+  "version": "0.1.0",
   "engine": "^0.1.0",
   "dependencies": {},
   "optionalDependencies": {},
@@ -9,33 +9,78 @@
   "provides": {
     "services": [],
     "aspects": [
-      "example.sticky-notes.note"
+      "diagram.genogram.person",
+      "diagram.genogram.union",
+      "diagram.genogram.parentage",
+      "diagram.genogram.relation",
+      "diagram.genogram.household"
     ],
     "hsmSlots": []
   },
-  "title": "스티키 노트",
-  "summary": "캔버스에 짧은 메모를 추가하고 내용과 색상을 편집합니다.",
+  "title": "가계도",
+  "summary": "상담용 인물 기호와 가족 관계를 작성합니다.",
   "entry": "dist/plugin.js",
-  "sha256": "8e026cb824762fd73a0923abeda72ae2b3d9cef910ee56d2210cfd60008ff7a9",
+  "sha256": "609f7e45f8e278482444469761d0a797f122b8c03a9e1624dd147c70a6eb52e8",
   "aspectIds": [
-    "example.sticky-notes.note"
+    "diagram.genogram.person",
+    "diagram.genogram.union",
+    "diagram.genogram.parentage",
+    "diagram.genogram.relation",
+    "diagram.genogram.household"
   ],
   "capabilities": {
     "readAspects": [
-      "example.sticky-notes.note",
+      "diagram.genogram.person",
+      "diagram.genogram.union",
+      "diagram.genogram.parentage",
+      "diagram.genogram.relation",
+      "diagram.genogram.household",
       "core.transform",
       "core.bounds"
     ],
     "writeAspects": [
-      "example.sticky-notes.note",
+      "diagram.genogram.person",
+      "diagram.genogram.union",
+      "diagram.genogram.parentage",
+      "diagram.genogram.relation",
+      "diagram.genogram.household",
       "core.transform",
       "core.bounds"
     ],
     "services": [
-      "canvas.creation"
+      "canvas.creation",
+      "canvas.active-tool-surface",
+      "canvas.frames"
     ],
     "commands": [
-      "example.sticky-notes:add-note"
+      "diagram.genogram:add-person",
+      "diagram.genogram:older-sibling",
+      "diagram.genogram:younger-sibling",
+      "diagram.genogram:add-partner",
+      "diagram.genogram:add-child",
+      "diagram.genogram:add-parents",
+      "diagram.genogram:add-twin",
+      "diagram.genogram:connect-union",
+      "diagram.genogram:connect-parentage",
+      "diagram.genogram:connect-twins",
+      "diagram.genogram:relation-close",
+      "diagram.genogram:relation-fused",
+      "diagram.genogram:relation-hostile",
+      "diagram.genogram:relation-cutoff",
+      "diagram.genogram:relation-focused_on",
+      "diagram.genogram:reverse",
+      "diagram.genogram:household",
+      "diagram.genogram:toggle-membership",
+      "diagram.genogram:template-nuclear",
+      "diagram.genogram:template-three-generation",
+      "diagram.genogram:template-single-parent",
+      "diagram.genogram:template-remarried",
+      "diagram.genogram:tidy-layout",
+      "diagram.genogram:privacy",
+      "diagram.genogram:mask-years",
+      "diagram.genogram:show-relations",
+      "diagram.genogram:show-households",
+      "diagram.genogram:show-notes"
     ]
   }
 }

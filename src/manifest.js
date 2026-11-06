@@ -1,3 +1,4 @@
+import {ids} from './model.js';
 /** Shared by the bundle and build script; keep the reviewed and executed contracts identical. */
 export function createPackageManifest(metadata) {
   return {
@@ -9,7 +10,7 @@ export function createPackageManifest(metadata) {
     conflicts: [...metadata.conflicts],
     provides: {
       services: [...metadata.provides.services],
-      aspects: [`${metadata.id}.note`],
+      aspects: Object.keys(ids).map(k => `${metadata.id}.${k}`),
       hsmSlots: [...metadata.provides.hsmSlots],
     },
   };

@@ -1,6 +1,6 @@
 {
-  "name": "alid-extension-template",
-  "version": "0.3.0",
+  "name": "genogram-extension",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.22.0",
@@ -12,7 +12,8 @@
     "build": "node scripts/build.mjs",
     "test": "pnpm build && node --test test/*.test.mjs",
     "test:watch": "node --test --watch test/plugin.test.mjs test/manifest.test.mjs",
-    "check:dist": "pnpm build && git diff --exit-code -- dist/plugin.js alid.extension.json"
+    "check:dist": "pnpm build && git diff --exit-code -- dist/plugin.js alid.extension.json",
+    "test:host": "pnpm build && node scripts/check-host.mjs"
   },
   "devDependencies": {
     "vite": "8.3.5"
