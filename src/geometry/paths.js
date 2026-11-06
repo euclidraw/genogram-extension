@@ -1,5 +1,77 @@
-export function distance(paths,x,y){let best=Infinity;for(const pts of paths)for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/(dx*dx+dy*dy||1)));best=Math.min(best,Math.hypot(x-a.x-t*dx,y-a.y-t*dy));}return best;}
-export function intersects(paths,l,t,r,b){for(const pts of paths)for(let i=1;i<pts.length;i++){const a=pts[i-1],z=pts[i];let lo=0,hi=1;const dx=z.x-a.x,dy=z.y-a.y;let ok=true;for(let k=0;k<4;k++){const p=k===0?-dx:k===1?dx:k===2?-dy:dy,q=k===0?a.x-l:k===1?r-a.x:k===2?a.y-t:b-a.y;if(p===0){if(q<0){ok=false;break;}}else{const u=q/p;if(p<0)lo=Math.max(lo,u);else hi=Math.min(hi,u);if(lo>hi){ok=false;break;}}}if(ok)return true;}return false;}
-export function pathData(pts){return pts.map((p,i)=>`${i?'L':'M'}${p.x},${p.y}`).join(' ');}
-export function bounds(paths,pad=8){let x=Infinity,y=Infinity,r=-Infinity,b=-Infinity;for(const ps of paths)for(const p of ps){x=Math.min(x,p.x);y=Math.min(y,p.y);r=Math.max(r,p.x);b=Math.max(b,p.y);}return Number.isFinite(x)?{x:x-pad,y:y-pad,width:r-x+2*pad,height:b-y+2*pad}:undefined;}
-export const point=(x,y)=>({x,y});
+export function distance(paths, x, y) {
+  let best = Infinity;
+  for (const pts of paths)
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1],
+        b = pts[i],
+        dx = b.x - a.x,
+        dy = b.y - a.y,
+        t = Math.max(
+          0,
+          Math.min(
+            1,
+            ((x - a.x) * dx + (y - a.y) * dy) / (dx * dx + dy * dy || 1),
+          ),
+        );
+      best = Math.min(best, Math.hypot(x - a.x - t * dx, y - a.y - t * dy));
+    }
+  return best;
+}
+export function intersects(paths, l, t, r, b) {
+  for (const pts of paths)
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1],
+        z = pts[i];
+      let lo = 0,
+        hi = 1;
+      const dx = z.x - a.x,
+        dy = z.y - a.y;
+      let ok = true;
+      for (let k = 0; k < 4; k++) {
+        const p = k === 0 ? -dx : k === 1 ? dx : k === 2 ? -dy : dy,
+          q =
+            k === 0 ? a.x - l : k === 1 ? r - a.x : k === 2 ? a.y - t : b - a.y;
+        if (p === 0) {
+          if (q < 0) {
+            ok = false;
+            break;
+          }
+        } else {
+          const u = q / p;
+          if (p < 0) lo = Math.max(lo, u);
+          else hi = Math.min(hi, u);
+          if (lo > hi) {
+            ok = false;
+            break;
+          }
+        }
+      }
+      if (ok) return true;
+    }
+  return false;
+}
+export function pathData(pts) {
+  return pts.map((p, i) => `${i ? "L" : "M"}${p.x},${p.y}`).join(" ");
+}
+export function bounds(paths, pad = 8) {
+  let x = Infinity,
+    y = Infinity,
+    r = -Infinity,
+    b = -Infinity;
+  for (const ps of paths)
+    for (const p of ps) {
+      x = Math.min(x, p.x);
+      y = Math.min(y, p.y);
+      r = Math.max(r, p.x);
+      b = Math.max(b, p.y);
+    }
+  return Number.isFinite(x)
+    ? {
+        x: x - pad,
+        y: y - pad,
+        width: r - x + 2 * pad,
+        height: b - y + 2 * pad,
+      }
+    : undefined;
+}
+export const point = (x, y) => ({ x, y });

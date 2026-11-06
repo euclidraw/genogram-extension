@@ -1,6 +1,56 @@
 {
   "apiVersion": 2,
   "id": "diagram.genogram",
+  "settingsSchema": [
+    {
+      "key": "privacy",
+      "label": "이름 표시",
+      "kind": "select",
+      "defaultValue": "full",
+      "options": [
+        {
+          "value": "full",
+          "label": "전체"
+        },
+        {
+          "value": "surname_masked",
+          "label": "성씨만"
+        },
+        {
+          "value": "initials",
+          "label": "이니셜"
+        },
+        {
+          "value": "hidden",
+          "label": "숨김"
+        }
+      ]
+    },
+    {
+      "key": "maskYears",
+      "label": "연도 마스킹",
+      "kind": "boolean",
+      "defaultValue": false
+    },
+    {
+      "key": "showRelations",
+      "label": "정서 관계선",
+      "kind": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "showHouseholds",
+      "label": "동거 가구",
+      "kind": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "showNotes",
+      "label": "임상 메모",
+      "kind": "boolean",
+      "defaultValue": true
+    }
+  ],
   "version": "0.1.0",
   "engine": "^0.1.0",
   "dependencies": {},
@@ -20,7 +70,7 @@
   "title": "가계도",
   "summary": "상담용 인물 기호와 가족 관계를 작성합니다.",
   "entry": "dist/plugin.js",
-  "sha256": "609f7e45f8e278482444469761d0a797f122b8c03a9e1624dd147c70a6eb52e8",
+  "sha256": "844dd9d750ca8c220cdbd93b30efa32722728249241697d34e662b4f8fedf06d",
   "aspectIds": [
     "diagram.genogram.person",
     "diagram.genogram.union",
@@ -50,9 +100,12 @@
     "services": [
       "canvas.creation",
       "canvas.active-tool-surface",
-      "canvas.frames"
+      "canvas.frames",
+      "extensions.preferences",
+      "canvas.text-history"
     ],
     "commands": [
+      "diagram.genogram:edit-person",
       "diagram.genogram:add-person",
       "diagram.genogram:older-sibling",
       "diagram.genogram:younger-sibling",

@@ -55,6 +55,7 @@ var defaults = {
 	}
 };
 var commandNames = [
+	"edit-person",
 	"add-person",
 	"older-sibling",
 	"younger-sibling",
@@ -115,6 +116,257 @@ function personBounds(view, id) {
 	if (!id || !view.isAlive(id) || !view.getCanonical(id, ids.person)) return;
 	return view.getComputed(id, "computed.layoutBounds");
 }
+// src/preferences.js
+var settingsSchema = [{
+	key: "privacy",
+	label: "이름 표시",
+	kind: "select",
+	defaultValue: "full",
+	options: [
+		{
+			value: "full",
+			label: "전체"
+		},
+		{
+			value: "surname_masked",
+			label: "성씨만"
+		},
+		{
+			value: "initials",
+			label: "이니셜"
+		},
+		{
+			value: "hidden",
+			label: "숨김"
+		}
+	]
+}, ...Object.entries({
+	maskYears: ["연도 마스킹", false],
+	showRelations: ["정서 관계선", true],
+	showHouseholds: ["동거 가구", true],
+	showNotes: ["임상 메모", true]
+}).map(([key, [label, defaultValue]]) => ({
+	key,
+	label,
+	kind: "boolean",
+	defaultValue
+}))];
+function bindPreferences(context) {
+	const control = context.services.get("extensions.preferences");
+	function refresh() {
+		if (!control) return;
+		for (const field of settingsSchema) lens[field.key] = control.get(field.key);
+		context.world.invalidateComputed();
+	}
+	refresh();
+	const off = control?.subscribe(refresh);
+	return {
+		change(key, value) {
+			if (control) control.set(key, value);
+			else {
+				lens[key] = value;
+				context.world.invalidateComputed();
+			}
+		},
+		dispose() {
+			off?.();
+		}
+	};
+}
+// src/inline-editor.js
+/** Changes outside the locally edited span survive remote updates during composition. */
+function mergeDraft(base, local, remote) {
+	if (remote === base || local === remote) return local;
+	if (local === base) return remote;
+	let a = 0, z = 0;
+	while (a < base.length && a < local.length && base[a] === local[a]) a++;
+	while (z < base.length - a && z < local.length - a && base[base.length - 1 - z] === local[local.length - 1 - z]) z++;
+	let r = 0, t = 0;
+	while (r < base.length && r < remote.length && base[r] === remote[r]) r++;
+	while (t < base.length - r && t < remote.length - r && base[base.length - 1 - t] === remote[remote.length - 1 - t]) t++;
+	const end = base.length - z, remoteEnd = base.length - t, insert = local.slice(a, local.length - z), delta = remote.length - base.length;
+	if (remoteEnd <= a) return remote.slice(0, a + delta) + insert + remote.slice(end + delta);
+	if (r >= end) return remote.slice(0, a) + insert + remote.slice(end);
+	return remote.slice(0, Math.min(a, r)) + remote.slice(r, remote.length - t) + insert + remote.slice(Math.max(remoteEnd, end) + delta);
+}
+function mountInlineEditor(context) {
+	const provider = context.services.get("canvas.active-tool-surface"), frames = context.services.get("canvas.frames"), textHistory = context.services.get("canvas.text-history");
+	let close = () => {}, openCurrent = () => {}, detach = () => {};
+	function mount() {
+		close();
+		detach();
+		const s = provider?.get();
+		if (!s || !frames || typeof document === "undefined") return;
+		let session = null, until = 0, composing = false, offWorld = () => {};
+		const input = document.createElement("textarea");
+		input.dataset.canvasEditor = "true";
+		input.dataset.genogramEditor = "true";
+		input.dataset.escapeOwner = "true";
+		input.setAttribute("aria-label", "가계도 인물 편집");
+		Object.assign(input.style, {
+			position: "absolute",
+			display: "none",
+			width: "180px",
+			height: "38px",
+			resize: "vertical",
+			pointerEvents: "auto",
+			zIndex: "20",
+			font: "14px sans-serif"
+		});
+		s.surface.hud.append(input);
+		function save() {
+			if (!session || composing) return;
+			const current = context.world.getCanonical(session.id, ids.person);
+			if (!current) {
+				finish(false);
+				return;
+			}
+			const value = mergeDraft(session.base, input.value, String(current[session.field] ?? ""));
+			if (value !== current[session.field]) {
+				textHistory?.change();
+				context.world.applyCanonicalTransaction(`${prefix}:edit`, [{
+					id: session.id,
+					aspect: ids.person,
+					patch: { [session.field]: value }
+				}]);
+			}
+			session.base = value;
+			input.value = value;
+		}
+		function finish(commit = true) {
+			if (!session) return;
+			if (composing) return;
+			if (commit) save();
+			session = null;
+			input.style.display = "none";
+			textHistory?.seal();
+		}
+		close = () => {
+			composing = false;
+			finish(true);
+			offWorld();
+		};
+		openCurrent = (id, field = "name") => {
+			const p = context.world.getCanonical(id, ids.person);
+			if (!p || context.world.isEntityReadOnly?.(id)) return;
+			if (field === "name" && lens.privacy !== "full" || field === "note" && !lens.showNotes) return;
+			finish();
+			session = {
+				id,
+				field,
+				base: String(p[field] ?? "")
+			};
+			input.value = session.base;
+			input.setAttribute("aria-label", {
+				name: "이름",
+				ageLabel: "나이",
+				yearSpan: "출생·사망 연도",
+				note: "임상 메모"
+			}[field]);
+			input.style.display = "block";
+			input.focus();
+			input.select();
+		};
+		const locked = (e) => composing || e.isComposing || e.keyCode === 229 || e.key === "Process" || Date.now() < until;
+		input.addEventListener("compositionstart", () => {
+			composing = true;
+		});
+		input.addEventListener("compositionend", () => {
+			composing = false;
+			until = Date.now() + 16;
+			save();
+		});
+		input.addEventListener("input", () => save());
+		input.addEventListener("blur", () => {
+			if (!composing) finish();
+		});
+		input.addEventListener("keydown", (e) => {
+			if (locked(e)) return;
+			if (e.key === "Escape" || e.key === "Enter" && !e.shiftKey) {
+				e.preventDefault();
+				finish();
+				s.surface.element.focus();
+			} else if (e.key === "Tab" && session) {
+				e.preventDefault();
+				const fields = [
+					"name",
+					"ageLabel",
+					"yearSpan",
+					"note"
+				], { id, field } = session, index = (fields.indexOf(field) + (e.shiftKey ? 3 : 1)) % 4;
+				finish();
+				openCurrent(id, fields[index]);
+			}
+		});
+		const click = (e) => {
+			if (locked(e) || e.target?.closest?.("input,textarea,button,[contenteditable]")) return;
+			const selected = s.selection.getSelection();
+			if (selected.length !== 1) return;
+			const id = selected[0];
+			if (!context.world.getCanonical(id, ids.person)) return;
+			const b = context.world.getComputed(id, "computed.layoutBounds"), out = {
+				x: 0,
+				y: 0
+			};
+			s.host.screenToWorld(e.clientX, e.clientY, out);
+			if (!b || out.x < b.x || out.x > b.x + b.width || out.y < b.y || out.y > b.y + b.height) return;
+			const y = out.y - b.y;
+			openCurrent(id, y < 60 ? "ageLabel" : y < 85 ? "name" : y < 101 ? "yearSpan" : "note");
+			e.preventDefault();
+		};
+		s.surface.element.addEventListener("dblclick", click);
+		offWorld = context.world.subscribe?.(() => {
+			if (session && !composing) {
+				const p = context.world.getCanonical(session.id, ids.person);
+				if (!p) {
+					session = null;
+					input.style.display = "none";
+					return;
+				}
+				const value = mergeDraft(session.base, input.value, String(p[session.field] ?? ""));
+				session.base = String(p[session.field] ?? "");
+				if (input.value !== value) input.value = value;
+			}
+		}) ?? (() => {});
+		const worldPoint = {
+			x: 0,
+			y: 0
+		};
+		const offFrame = frames.subscribe(() => {
+			if (!session) return;
+			const b = context.world.getComputed(session.id, "computed.layoutBounds");
+			if (!b) return;
+			const y = {
+				ageLabel: 22,
+				name: 66,
+				yearSpan: 82,
+				note: 98
+			}[session.field];
+			s.host.worldToScreen(b.x + b.width / 2, b.y + y, worldPoint);
+			const rect = s.surface.hud.getBoundingClientRect();
+			input.style.left = `${worldPoint.x - rect.left - 90}px`;
+			input.style.top = `${worldPoint.y - rect.top}px`;
+		});
+		detach = () => {
+			offWorld();
+			offFrame();
+			s.surface.element.removeEventListener("dblclick", click);
+			input.remove();
+		};
+	}
+	mount();
+	const off = provider?.subscribe?.(mount);
+	return {
+		open(id, field) {
+			openCurrent(id, field);
+		},
+		dispose() {
+			close();
+			detach();
+			off?.();
+		}
+	};
+}
 // src/interactions.js
 /** Each active view owns handles and preview; the host owns the frame clock and input arbitration. */
 function mountInteractions(context, run) {
@@ -154,11 +406,11 @@ function mountInteractions(context, run) {
 			const id = target();
 			if (!id) return false;
 			const p = world.getCanonical(id, ids.person);
-			if (kind.startsWith("add-") || kind.includes("sibling")) {
+			if (kind === "move" || kind.startsWith("add-") || kind.includes("sibling")) {
 				if (!p) return false;
 				const b = world.getComputed(id, "computed.layoutBounds");
 				if (!b) return false;
-				const dx = kind === "older-sibling" ? -18 : kind === "younger-sibling" || kind === "add-partner" ? b.width + 18 : b.width / 2, dy = kind === "add-parents" ? -18 : kind === "add-child" ? b.height + 18 : kind === "add-partner" ? 32 : kind === "add-twin" ? b.height : 32;
+				const dx = kind === "move" ? b.width / 2 : kind === "older-sibling" ? -18 : kind === "younger-sibling" || kind === "add-partner" ? b.width + 18 : b.width / 2, dy = kind === "move" ? -42 : kind === "add-parents" ? -18 : kind === "add-child" ? b.height + 18 : kind === "add-partner" ? 32 : kind === "add-twin" ? b.height : 32;
 				out.x = b.x + dx;
 				out.y = b.y + dy;
 				return true;
@@ -170,6 +422,7 @@ function mountInteractions(context, run) {
 			return true;
 		}
 		for (const kind of [
+			"move",
 			"older-sibling",
 			"younger-sibling",
 			"add-partner",
@@ -181,7 +434,7 @@ function mountInteractions(context, run) {
 			"relation"
 		]) {
 			const el = document.createElement("button");
-			el.textContent = kind in ids ? "◆" : "+";
+			el.textContent = kind === "move" ? "↔" : kind in ids ? "◆" : "+";
 			el.title = kind;
 			el.setAttribute("aria-label", kind);
 			el.dataset.canvasUi = "true";
@@ -206,11 +459,32 @@ function mountInteractions(context, run) {
 				getWorldPosition: (out) => location(kind, out),
 				onPointerDown(e) {
 					if (composing || e.isComposing || Date.now() < until || e.button !== 0) return false;
-					if (!(kind in ids)) {
+					if (kind !== "move" && !(kind in ids)) {
 						run(kind);
 						return true;
 					}
-					const id = target(), field = kind === "union" ? "barOffset" : kind === "parentage" ? "barRatio" : "curveOffset", p = world.getCanonical(id, ids[kind]);
+					const id = target();
+					if (kind === "move") {
+						const base = world.getCanonical(id, "core.transform");
+						s.host.screenToWorld(e.clientX, e.clientY, point);
+						gesture = {
+							id,
+							kind,
+							baseX: base.x,
+							baseY: base.y,
+							startX: point.x,
+							startY: point.y,
+							startClientY: e.clientY,
+							startClientX: e.clientX,
+							pointer: e.pointerId,
+							x: base.x,
+							y: base.y
+						};
+						s.selection.stateMachine.transition(key);
+						s.surface.element.setPointerCapture(e.pointerId);
+						return true;
+					}
+					const field = kind === "union" ? "barOffset" : kind === "parentage" ? "barRatio" : "curveOffset", p = world.getCanonical(id, ids[kind]);
 					s.host.screenToWorld(e.clientX, e.clientY, point);
 					gesture = {
 						id,
@@ -233,6 +507,29 @@ function mountInteractions(context, run) {
 		function move(e) {
 			if (!gesture || e.pointerId !== gesture.pointer) return;
 			s.host.screenToWorld(e.clientX, e.clientY, point);
+			if (gesture.kind === "move") {
+				let x = gesture.baseX + point.x - gesture.startX, y = gesture.baseY + point.y - gesture.startY;
+				const threshold = 8 / Math.max(.01, s.host.getZoom());
+				for (const other of world.listEntityIds()) {
+					if (other === gesture.id || !world.getCanonical(other, ids.person)) continue;
+					const t = world.getCanonical(other, "core.transform");
+					if (!t) continue;
+					for (let rail = -1; rail <= 1; rail++) {
+						const rx = t.x + rail * 110, ry = t.y + rail * 240;
+						if (Math.abs(x - rx) < threshold) x = rx;
+						if (Math.abs(y - ry) < threshold) y = ry;
+					}
+				}
+				gesture.x = x;
+				gesture.y = y;
+				if (Math.hypot(e.clientX - gesture.startClientX, e.clientY - gesture.startClientY) < 3.5) return;
+				overlay.set(gesture.id, "core.transform", {
+					x,
+					y
+				});
+				s.host.requestRender();
+				return;
+			}
 			gesture.delta = (point.y - gesture.startY) / (gesture.kind === "parentage" ? 200 : 1);
 			if (Math.abs(e.clientY - gesture.startClientY) < 3.5) return;
 			const value = gesture.initial + gesture.delta;
@@ -243,6 +540,27 @@ function mountInteractions(context, run) {
 			if (!gesture || e.pointerId !== gesture.pointer) return;
 			const g = gesture;
 			cancel();
+			if (g.kind === "move") {
+				if (Math.hypot(e.clientX - g.startClientX, e.clientY - g.startClientY) < 3.5) return;
+				const current = world.getCanonical(g.id, "core.transform");
+				if (!current) return;
+				s.host.history.begin();
+				try {
+					world.applyCanonicalTransaction(`${prefix}:rail-move`, [{
+						id: g.id,
+						aspect: "core.transform",
+						patch: {
+							x: current.x + g.x - g.baseX,
+							y: current.y + g.y - g.baseY
+						}
+					}]);
+					s.host.history.commit();
+				} catch (err) {
+					s.host.history.abort();
+					throw err;
+				}
+				return;
+			}
 			if (Math.abs(e.clientY - g.startClientY) < 3.5) return;
 			const current = world.getCanonical(g.id, ids[g.kind]);
 			if (!current) return;
@@ -291,8 +609,9 @@ function mountInteractions(context, run) {
 				}
 				s.host.worldToScreen(point.x, point.y, screen);
 				el.style.display = "block";
-				el.style.left = `${screen.x - 11}px`;
-				el.style.top = `${screen.y - 11}px`;
+				const rect = s.surface.hud.getBoundingClientRect();
+				el.style.left = `${screen.x - rect.left - 11}px`;
+				el.style.top = `${screen.y - rect.top - 11}px`;
 			}
 		}));
 		clean = () => {
@@ -328,6 +647,7 @@ var extension_default = {
 function createPackageManifest(metadata) {
 	return {
 		id: metadata.id,
+		settingsSchema,
 		version: metadata.version,
 		engine: metadata.engine,
 		dependencies: { ...metadata.dependencies },
@@ -340,6 +660,73 @@ function createPackageManifest(metadata) {
 		}
 	};
 }
+// src/ui-labels.js
+var labels$1 = {
+	symbol: "인물 기호",
+	orientation: "성적 지향 표시",
+	clinical: "임상 상태",
+	lifeStatus: "생존 상태",
+	status: "결합 상태",
+	pedigree: "자녀 관계",
+	twinType: "쌍둥이",
+	kind: "정서 관계",
+	strokeStyle: "테두리",
+	male: "남성",
+	female: "여성",
+	unknown: "미상",
+	trans_male: "트랜스 남성",
+	trans_female: "트랜스 여성",
+	nonbinary: "논바이너리",
+	pregnancy: "임신",
+	miscarriage: "자연유산",
+	abortion: "인공유산",
+	stillbirth_male: "사산 남",
+	stillbirth_female: "사산 여",
+	pet: "반려동물",
+	none: "없음",
+	gay: "동성애 남성",
+	lesbian: "동성애 여성",
+	bisexual: "양성애",
+	physical: "신체 질환",
+	mental: "정신 건강",
+	substance: "물질 사용",
+	mental_substance: "정신·물질 사용",
+	recovering: "회복 중",
+	alive: "생존",
+	deceased: "사망",
+	marriage: "혼인",
+	engagement: "약혼",
+	cohabitation: "동거",
+	separation: "별거",
+	divorce: "이혼",
+	reunion_divorce: "이혼 후 재결합",
+	reunion_separation: "별거 후 재결합",
+	secret_affair: "비공식 관계",
+	biological: "친생",
+	adopted: "입양",
+	foster: "위탁",
+	surrogate: "대리 출생",
+	fraternal: "이란성",
+	identical: "일란성",
+	close: "친밀",
+	fused: "융합",
+	distant: "소원",
+	hostile: "갈등",
+	fused_hostile: "융합·갈등",
+	cutoff: "단절",
+	cutoff_repaired: "단절 후 회복",
+	estranged: "거리·단절",
+	focused_on: "집중",
+	abuse_physical: "신체 학대",
+	abuse_emotional: "정서 학대",
+	abuse_sexual: "성적 학대",
+	dashed: "파선",
+	dotted: "점선",
+	name: "이름",
+	ageLabel: "나이",
+	yearSpan: "출생·사망 연도",
+	note: "임상 메모"
+};
 // src/aspects/person.js
 var symbols = [
 	"male",
@@ -362,7 +749,7 @@ var options = (field, values, label) => ({
 	placement: "inspector",
 	options: values.map((value) => ({
 		value,
-		label: value
+		label: labels$1[value] ?? value
 	}))
 });
 function body(p, g) {
@@ -421,7 +808,7 @@ function body(p, g) {
 		[display(p.yearSpan), 94],
 		...lens.showNotes ? String(p.note).split("\n").map((x, i) => [display(x), 110 + i * 16]) : []
 	];
-	return `<g fill="white" stroke="#334155" stroke-width="2">${s}</g>${marks}<g text-anchor="middle" fill="#334155" font-family="sans-serif" font-size="12">${texts.map(([v, y]) => `<text x="${cx}" y="${y}">${escapeXml(v)}</text>`).join("")}</g>`;
+	return `<g fill="white" stroke="#334155" stroke-width="2">${s}</g>${marks}<g text-anchor="middle" fill="#334155" font-family="sans-serif" font-size="12">${texts.map(([v, y]) => `<text x="${cx}" y="${y}"${Array.from(String(v ?? "")).length * 12 > g.width - 8 ? ` textLength="${Math.max(1, g.width - 8)}" lengthAdjust="spacingAndGlyphs"` : ""}>${escapeXml(v)}</text>`).join("")}</g>`;
 }
 var person = {
 	id: ids.person,
@@ -450,11 +837,32 @@ var person = {
 			x: finite(t.x),
 			y: finite(t.y),
 			rotation: finite(t.rotation),
+			labelHeight: 110 + 16 * (String(p.note ?? "").split("\n").length - 1),
 			width: b.width > 0 ? b.width : 120,
 			height: b.height > 0 ? b.height : 120
 		};
 	},
 	paintOverflow: 32,
+	paintBounds(g) {
+		if (!g) return;
+		const h = Math.max(g.height, g.labelHeight + 8), a = g.rotation, c = Math.cos(a), s = Math.sin(a), cx = g.x + g.width / 2, cy = g.y + g.height / 2;
+		const points = [
+			[0, 0],
+			[g.width, 0],
+			[g.width, h],
+			[0, h]
+		].map(([x, y]) => ({
+			x: cx + (x - g.width / 2) * c - (y - g.height / 2) * s,
+			y: cy + (x - g.width / 2) * s + (y - g.height / 2) * c
+		}));
+		const x = Math.min(...points.map((p) => p.x)), y = Math.min(...points.map((p) => p.y));
+		return {
+			x,
+			y,
+			width: Math.max(...points.map((p) => p.x)) - x,
+			height: Math.max(...points.map((p) => p.y)) - y
+		};
+	},
 	renderSvg(p, g) {
 		return { svg: g ? `<g transform="translate(${g.x},${g.y}) rotate(${g.rotation * 180 / Math.PI},${g.width / 2},${g.height / 2})">${body(p, g)}</g>` : "" };
 	},
@@ -467,7 +875,7 @@ var person = {
 		].map((field) => ({
 			kind: "text",
 			field,
-			label: field,
+			label: labels$1[field] ?? field,
 			placement: "inspector"
 		})),
 		options("symbol", symbols, "인물 기호"),
@@ -486,6 +894,12 @@ var person = {
 			"recovering"
 		], "임상 상태"),
 		options("lifeStatus", ["alive", "deceased"], "생존"),
+		{
+			kind: "number",
+			field: "birthOrderHint",
+			label: "형제 순서",
+			placement: "inspector"
+		},
 		{
 			kind: "toggle",
 			field: "isIndexPerson",
@@ -722,14 +1136,28 @@ function make(kind, derive) {
 	const aspect = ids[kind], get = (id, v) => v.getComputed(id, `computed.${aspect}`);
 	return {
 		id: aspect,
-		label: kind,
+		label: {
+			union: "부부·파트너",
+			parentage: "부모·자녀",
+			relation: "정서 관계",
+			household: "동거 가구"
+		}[kind],
 		defaults: defaults[kind],
 		refs: refs[kind],
 		textFields: kind === "parentage" ? [] : ["label"],
 		dependsOnCanonical: Object.values(ids),
 		dependsOnComputed: ["computed.layoutBounds", ...kind === "parentage" ? [`computed.${ids.union}`] : []],
 		derive,
-		paintBounds: (g) => g && bounds(g.paths, 20),
+		paintBounds: (g) => {
+			if (!g) return;
+			const b = bounds(g.paths, 20);
+			if (b && g.label) {
+				const right = g.origin.x + Array.from(String(g.label)).length * 12;
+				b.width = Math.max(b.width, right - b.x);
+				b.y = Math.min(b.y, g.origin.y - 24);
+			}
+			return b;
+		},
 		renderSvg(p, g) {
 			if (!g || kind === "relation" && !lens.showRelations || kind === "household" && !lens.showHouseholds) return { svg: "" };
 			let paths = g.paths.map((ps) => `<path d="${pathData(ps)}"/>`).join("");
@@ -754,7 +1182,9 @@ function make(kind, derive) {
 				"engagement",
 				"secret_affair"
 			].includes(p.status) || ["adopted", "foster"].includes(p.pedigree) ? " stroke-dasharray=\"6 4\"" : "";
-			return { svg: `<g fill="none" stroke="${kind === "household" && /^#[\da-f]{6}$/i.test(p.color) ? p.color : "#334155"}" stroke-width="2"${dash}>${paths}</g><text x="${o.x}" y="${o.y - 8}" font-family="sans-serif" font-size="12">${escapeXml(display(g.label))}</text>` };
+			if (kind === "household" && p.strokeStyle === "dotted") dash = " stroke-dasharray=\"1 5\" stroke-linecap=\"round\"";
+			if (kind === "relation" && p.kind === "abuse_sexual") paths += `<circle cx="${o.x}" cy="${o.y}" r="6"/>`;
+			return { svg: `<g fill="none" stroke="${kind === "household" && /^#[\da-f]{6}$/i.test(p.color) ? p.color : "#334155"}" stroke-width="2" stroke-linejoin="round"${dash}>${paths}</g><text x="${o.x}" y="${o.y - 8}" font-family="sans-serif" font-size="12">${escapeXml(display(g.label))}</text>` };
 		},
 		selection: {
 			priority: 20,
@@ -780,11 +1210,11 @@ function make(kind, derive) {
 			...Object.entries(enumerations[kind]).map(([field, values]) => ({
 				kind: "segmented",
 				field,
-				label: field,
+				label: labels$1[field] ?? field,
 				placement: "selection-bar",
 				options: values.map((value) => ({
 					value,
-					label: value
+					label: labels$1[value] ?? value
 				}))
 			})),
 			...kind === "parentage" ? [] : [{
@@ -809,7 +1239,7 @@ var lines = [
 	make("household", householdGeometry)
 ];
 // src/commands/family.js
-function familyCommands(context) {
+function familyCommands(context, preferences) {
 	const { world } = context, provider = context.services.get("canvas.active-tool-surface"), creation = context.services.get("canvas.creation");
 	let active = true;
 	const all = (k) => world.listEntityIds().filter((id) => world.isAlive(id) && world.getCanonical(id, ids[k]));
@@ -926,9 +1356,8 @@ function familyCommands(context) {
 					"initials",
 					"hidden"
 				];
-				lens.privacy = modes[(modes.indexOf(lens.privacy) + 1) % 4];
-			} else lens[key] = !lens[key];
-			world.invalidateComputed();
+				preferences.change("privacy", modes[(modes.indexOf(lens.privacy) + 1) % 4]);
+			} else preferences.change(key, !lens[key]);
 			return;
 		}
 		const ops = [];
@@ -1095,6 +1524,7 @@ function familyCommands(context) {
 }
 // src/index.js
 var labels = {
+	"edit-person": "인물 바로 편집",
 	"add-person": "내담자·인물 추가",
 	"older-sibling": "손위 형제",
 	"younger-sibling": "손아래 동생",
@@ -1105,11 +1535,11 @@ var labels = {
 	"connect-union": "부부로 연결",
 	"connect-parentage": "첫 선택 부모 → 자녀 연결",
 	"connect-twins": "쌍둥이로 묶기",
-	"reverse": "방향 반전",
-	"household": "동거 가구로 묶기",
+	reverse: "방향 반전",
+	household: "동거 가구로 묶기",
 	"toggle-membership": "가구 편입·제외",
 	"tidy-layout": "가족 정돈",
-	"privacy": "이름 표시 방식 전환",
+	privacy: "이름 표시 방식 전환",
 	"mask-years": "연도 마스킹",
 	"show-relations": "정서선 표시 전환",
 	"show-households": "가구 표시 전환",
@@ -1138,14 +1568,26 @@ var src_default = {
 		minSelectionCount: name.startsWith("connect-") || name.startsWith("relation-") ? 2 : name === "add-person" || name.startsWith("template-") || name === "privacy" || name.startsWith("show-") || name === "mask-years" ? 0 : 1
 	})) },
 	activate(context) {
-		const family = familyCommands(context), off = [];
+		const preferences = bindPreferences(context), family = familyCommands(context, preferences), editor = mountInlineEditor(context), off = [() => preferences.dispose(), () => editor.dispose()];
+		const execute = (name) => {
+			if (name === "edit-person") {
+				const selected = context.services.get("canvas.active-tool-surface")?.get()?.selection.getSelection();
+				if (selected?.length === 1) editor.open(selected[0]);
+				return;
+			}
+			const result = family.run(name);
+			if (name === "add-person" && result) editor.open(result);
+			return result;
+		};
 		try {
 			for (const name of commandNames) off.push(context.commands.register({
 				id: `${prefix}:${name}`,
 				title: labels[name],
 				summary: labels[name],
 				shortcutScope: "canvas",
+				...name === "edit-person" ? { shortcutSelectionAspect: ids.person } : {},
 				...{
+					"edit-person": "Enter",
 					"older-sibling": "M-[",
 					"younger-sibling": "M-]",
 					"add-partner": "M-s",
@@ -1154,6 +1596,7 @@ var src_default = {
 					"add-twin": "M-t",
 					household: "C-c g"
 				}[name] ? { keys: [{
+					"edit-person": "Enter",
 					"older-sibling": "M-[",
 					"younger-sibling": "M-]",
 					"add-partner": "M-s",
@@ -1162,9 +1605,9 @@ var src_default = {
 					"add-twin": "M-t",
 					household: "C-c g"
 				}[name]] } : {},
-				run: () => family.run(name)
+				run: () => execute(name)
 			}));
-			off.push(mountInteractions(context, family.run));
+			off.push(mountInteractions(context, execute));
 			if (context.world.registerSelectionExpander) off.push(context.world.registerSelectionExpander((selected) => {
 				const expanded = new Set(selected);
 				for (const id of selected) {
@@ -1185,7 +1628,7 @@ var src_default = {
 			throw e;
 		}
 		return {
-			api: Object.freeze({ run: family.run }),
+			api: Object.freeze({ run: execute }),
 			dispose() {
 				family.dispose();
 				for (const f of off.splice(0).reverse()) f();

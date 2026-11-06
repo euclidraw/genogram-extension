@@ -31,7 +31,7 @@ export async function createInstallManifest(outDir = new URL('dist/', root)) {
     capabilities: {
       readAspects: [...contract.provides.aspects, 'core.transform', 'core.bounds'],
       writeAspects: [...contract.provides.aspects, 'core.transform', 'core.bounds'],
-      services: ['canvas.creation', 'canvas.active-tool-surface', 'canvas.frames'],
+      services: ['canvas.creation', 'canvas.active-tool-surface', 'canvas.frames', 'extensions.preferences', 'canvas.text-history'],
       commands: commandNames.map(name => `${metadata.id}:${name}`),
     },
   };
