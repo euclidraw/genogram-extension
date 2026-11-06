@@ -1032,7 +1032,9 @@ function mountInteractions(context, run) {
 		let gesture = null, composing = false, until = 0;
 		const key = `root.select.${prefix}:adjust`;
 		function cancel() {
+			const previous = gesture;
 			gesture = null;
+			if (previous && s.surface.element.hasPointerCapture?.(previous.pointer)) s.surface.element.releasePointerCapture(previous.pointer);
 			overlay.clear();
 			if (s.selection.stateMachine.stateId === key) s.selection.stateMachine.transition("root.select");
 		}
@@ -1063,8 +1065,8 @@ function mountInteractions(context, run) {
 			}
 			const g = world.getComputed(id, `computed.${ids[kind]}`);
 			if (!g) return false;
-			out.x = g.origin.x;
-			out.y = g.origin.y;
+			out.x = g.adjustment?.x ?? g.origin.x;
+			out.y = g.adjustment?.y ?? g.origin.y;
 			return true;
 		}
 		const kinds = [
@@ -1077,6 +1079,7 @@ function mountInteractions(context, run) {
 		];
 		for (const kind of kinds) {
 			const isLineHandle = kind === "union" || kind === "parentage";
+			const isCurveHandle = kind === "relation";
 			const el = isLineHandle ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : document.createElement("button");
 			const title = {
 				"add-partner": "배우자 추가",
@@ -1093,7 +1096,8 @@ function mountInteractions(context, run) {
 				el.setAttribute("viewBox", "0 0 24 24");
 				el.setAttribute("aria-hidden", "true");
 				el.innerHTML = "<path d=\"M2 6H22 M2 18H22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/>";
-			} else if (paths) el.innerHTML = `<svg viewBox="0 0 20 20" width="${isAddButton ? 12 : 14}" height="${isAddButton ? 12 : 14}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join("")}</svg>`;
+			} else if (isCurveHandle) el.innerHTML = "<svg viewBox=\"0 0 22 22\" width=\"22\" height=\"22\" aria-hidden=\"true\"><path d=\"M11 4 18 11 11 18 4 11Z\" fill=\"var(--alid-bg-surface,white)\" stroke=\"var(--alid-accent,#008FF0)\" stroke-width=\"2\"/></svg>";
+			else if (paths) el.innerHTML = `<svg viewBox="0 0 20 20" width="${isAddButton ? 12 : 14}" height="${isAddButton ? 12 : 14}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join("")}</svg>`;
 			else el.textContent = "◆";
 			if (!isLineHandle) el.title = title;
 			el.setAttribute("aria-label", title);
@@ -1103,9 +1107,9 @@ function mountInteractions(context, run) {
 				width: isLineHandle ? "24px" : isAddButton ? "16px" : "22px",
 				height: isLineHandle ? "24px" : isAddButton ? "16px" : "22px",
 				padding: "0",
-				border: isBlueHandle ? "none" : "1px solid #64748b",
+				border: isBlueHandle || isCurveHandle ? "none" : "1px solid #64748b",
 				borderRadius: isBlueHandle ? "3px" : "50%",
-				background: isLineHandle ? "transparent" : isAddButton ? "var(--alid-accent, #008FF0)" : "white",
+				background: isLineHandle || isCurveHandle ? "transparent" : isAddButton ? "var(--alid-accent, #008FF0)" : "white",
 				color: isLineHandle ? "var(--alid-accent, #008FF0)" : isAddButton ? "white" : "",
 				pointerEvents: "none",
 				display: "none"
@@ -1128,13 +1132,30 @@ function mountInteractions(context, run) {
 					}
 					const id = target();
 					const field = kind === "union" ? "barOffset" : kind === "parentage" ? "barRatio" : "curveOffset", p = world.getCanonical(id, ids[kind]);
+					if (!p || world.isEntityReadOnly?.(id)) return false;
+					const geometry = world.getComputed(id, `computed.${ids[kind]}`), adjustment = geometry?.adjustment;
+					const units = adjustment?.units ?? (kind === "parentage" ? 200 : 1);
+					if (Math.abs(units) < 1e-6) return false;
+					const members = kind === "parentage" ? geometry?.adjustmentIds ?? [id] : [id];
+					if (members.some((member) => world.isEntityReadOnly?.(member))) return false;
 					s.host.screenToWorld(e.clientX, e.clientY, point);
 					gesture = {
 						id,
 						kind,
 						field,
 						initial: p[field],
+						startX: point.x,
 						startY: point.y,
+						startClientX: e.clientX,
+						axisX: adjustment?.axisX ?? 0,
+						axisY: adjustment?.axisY ?? 1,
+						units,
+						members,
+						ops: members.map((id) => ({
+							id,
+							aspect: ids[kind],
+							patch: { [field]: p[field] }
+						})),
 						startClientY: e.clientY,
 						delta: 0,
 						pointer: e.pointerId
@@ -1148,7 +1169,12 @@ function mountInteractions(context, run) {
 			handles.push(handle);
 		}
 		function clearAdjustmentCursor() {
-			if (s.surface.element.style.cursor === "ns-resize") s.surface.element.style.cursor = "";
+			if ([
+				"ns-resize",
+				"ew-resize",
+				"nwse-resize",
+				"nesw-resize"
+			].includes(s.surface.element.style.cursor)) s.surface.element.style.cursor = "";
 		}
 		function move(e) {
 			hovering = !gesture && !e.buttons && e.pointerType !== "touch";
@@ -1157,27 +1183,38 @@ function mountInteractions(context, run) {
 			s.host.requestRender();
 			if (!gesture || e.pointerId !== gesture.pointer) return;
 			s.host.screenToWorld(e.clientX, e.clientY, point);
-			gesture.delta = (point.y - gesture.startY) / (gesture.kind === "parentage" ? 200 : 1);
-			if (Math.abs(e.clientY - gesture.startClientY) < 3.5) return;
+			gesture.delta = ((point.x - gesture.startX) * gesture.axisX + (point.y - gesture.startY) * gesture.axisY) / gesture.units;
+			if (Math.hypot(e.clientX - gesture.startClientX, e.clientY - gesture.startClientY) < 3.5) return;
 			const value = gesture.initial + gesture.delta;
-			overlay.set(gesture.id, ids[gesture.kind], { [gesture.field]: gesture.kind === "parentage" ? Math.max(.1, Math.min(.9, value)) : value });
+			for (const op of gesture.ops) op.patch[gesture.field] = gesture.kind === "parentage" ? Math.max(.1, Math.min(.9, value)) : value;
+			if (overlay.setBatch) overlay.setBatch(gesture.ops);
+			else for (const op of gesture.ops) overlay.set(op.id, op.aspect, op.patch);
 			s.host.requestRender();
 		}
 		function up(e) {
 			if (!gesture || e.pointerId !== gesture.pointer) return;
 			const g = gesture;
+			s.host.screenToWorld(e.clientX, e.clientY, point);
+			g.delta = ((point.x - g.startX) * g.axisX + (point.y - g.startY) * g.axisY) / g.units;
 			cancel();
-			if (Math.abs(e.clientY - g.startClientY) < 3.5) return;
+			if (Math.hypot(e.clientX - g.startClientX, e.clientY - g.startClientY) < 3.5 || Math.abs(g.delta) < 1e-8) return;
 			const current = world.getCanonical(g.id, ids[g.kind]);
-			if (!current) return;
+			if (!current || g.members.some((id) => world.isEntityReadOnly?.(id))) return;
 			const value = current[g.field] + g.delta;
 			s.host.history.begin();
 			try {
-				world.applyCanonicalTransaction(`${prefix}:adjust`, [{
-					id: g.id,
-					aspect: ids[g.kind],
-					patch: { [g.field]: g.kind === "parentage" ? Math.max(.1, Math.min(.9, value)) : value }
-				}]);
+				const ops = [];
+				for (const id of g.members) {
+					const p = world.getCanonical(id, ids[g.kind]);
+					if (!p) continue;
+					if (g.kind === "parentage" && (current.union ? p.union !== current.union : p.union || p.parentA !== current.parentA || p.parentB !== current.parentB)) continue;
+					ops.push({
+						id,
+						aspect: ids[g.kind],
+						patch: { [g.field]: g.kind === "parentage" ? Math.max(.1, Math.min(.9, value)) : value }
+					});
+				}
+				world.applyCanonicalTransaction(`${prefix}:adjust`, ops);
 				s.host.history.commit();
 			} catch (err) {
 				s.host.history.abort();
@@ -1218,11 +1255,15 @@ function mountInteractions(context, run) {
 		off.push(frames.subscribe(() => {
 			const hasHit = hovering && s.selection.gizmos.hitTest(hoverX, hoverY, s.host.worldToScreen, hit);
 			if (hasHit && (hit.id === `diagram.genogram:union` || hit.id === `diagram.genogram:parentage`)) s.surface.element.style.cursor = "ns-resize";
-			else clearAdjustmentCursor();
-			const hovered = hasHit ? kinds.findIndex((kind) => kind.startsWith("add-") && `diagram.genogram:${kind}` === hit.id) : -1;
+			else if (hasHit && hit.id === `diagram.genogram:relation`) {
+				const id = target(), a = id && world.getComputed(id, `computed.${ids.relation}`)?.adjustment;
+				const x = a?.axisX ?? 0, y = a?.axisY ?? 1;
+				s.surface.element.style.cursor = Math.abs(x) > .9 ? "ew-resize" : Math.abs(y) > .9 ? "ns-resize" : x * y > 0 ? "nwse-resize" : "nesw-resize";
+			} else clearAdjustmentCursor();
+			const hovered = hasHit ? kinds.findIndex((kind) => `${prefix}:${kind}` === hit.id) : -1;
 			tooltip.style.display = hovered >= 0 ? "block" : "none";
 			if (hovered >= 0 && handles[hovered].getWorldPosition(point)) {
-				tooltip.textContent = elements[hovered].title;
+				tooltip.textContent = elements[hovered].getAttribute?.("aria-label") ?? elements[hovered].title;
 				s.host.worldToScreen(point.x, point.y, screen);
 				const rect = s.surface.hud.getBoundingClientRect();
 				tooltip.style.left = `${screen.x - rect.left + 16}px`;
@@ -1261,7 +1302,7 @@ function mountInteractions(context, run) {
 var extension_default = {
 	id: "diagram.genogram",
 	title: "가계도",
-	version: "0.1.1",
+	version: "0.1.2",
 	summary: "상담용 인물 기호와 가족 관계를 작성합니다.",
 	engine: "^0.1.1",
 	dependencies: {},
@@ -1701,7 +1742,14 @@ function unionGeometry(p, id, v) {
 	return {
 		paths,
 		origin,
-		label: p.label
+		label: p.label,
+		adjustment: {
+			x: origin.x,
+			y: origin.y,
+			axisX: 0,
+			axisY: 1,
+			units: 1
+		}
 	};
 }
 function parentageGeometry(p, id, v) {
@@ -1735,7 +1783,15 @@ function parentageGeometry(p, id, v) {
 	return {
 		paths,
 		origin: point(c.x, y),
-		label: p.pedigree === "surrogate" ? "대리" : ""
+		label: p.pedigree === "surrogate" ? "대리" : "",
+		adjustment: {
+			x: (Math.min(o.x, ...children.map((a) => a.x)) + Math.max(o.x, ...children.map((a) => a.x))) / 2,
+			y,
+			axisX: 0,
+			axisY: 1,
+			units: Math.min(c.y, ...children.map((a) => a.y)) - o.y
+		},
+		adjustmentIds: siblings
 	};
 }
 function relationGeometry(p, id, v) {
@@ -1838,7 +1894,14 @@ function relationGeometry(p, id, v) {
 		fills,
 		origin: mid,
 		label: p.label,
-		clipSymbols: [start, end]
+		clipSymbols: [start, end],
+		adjustment: {
+			x: mid.x,
+			y: mid.y,
+			axisX: nx,
+			axisY: ny,
+			units: 1
+		}
 	};
 }
 function householdGeometry(p, id, v) {
@@ -1946,6 +2009,29 @@ function make(kind, derive) {
 					fills.push(closed ? geometry.fills?.[index] ?? "none" : "none");
 				}
 			});
+			if (kind === "union") {
+				let longest = 0;
+				for (const path of paths) for (let i = 1; i < path.length; i++) {
+					const a = path[i - 1], b = path[i];
+					if (Math.abs(a.y - geometry.origin.y) > 1e-6 || Math.abs(b.y - a.y) > 1e-6) continue;
+					const left = Math.min(a.x, b.x), right = Math.max(a.x, b.x);
+					const reserve = [
+						"separation",
+						"divorce",
+						"reunion_divorce",
+						"reunion_separation"
+					].includes(p.status) ? 26 : 0;
+					const intervals = reserve ? [[left, Math.min(right, geometry.origin.x - reserve)], [Math.max(left, geometry.origin.x + reserve), right]] : [[left, right]];
+					for (const [start, end] of intervals) {
+						const length = end - start;
+						if (length > longest) {
+							longest = length;
+							geometry.adjustment.x = (start + end) / 2;
+							geometry.adjustment.y = a.y;
+						}
+					}
+				}
+			}
 			return {
 				...geometry,
 				paths,
@@ -1986,6 +2072,24 @@ function make(kind, derive) {
 			intersectsRect(id, v, l, t, r, b) {
 				const g = get(id, v);
 				return !!g && !(kind === "relation" && !lens.showRelations || kind === "household" && !lens.showHouseholds) && intersects(g.paths, l, t, r, b);
+			},
+			getOutlinePath(id, view, projection) {
+				const g = get(id, view);
+				if (!g || kind === "relation" && !lens.showRelations || kind === "household" && !lens.showHouseholds) return "";
+				const point = {
+					x: 0,
+					y: 0
+				};
+				let path = "";
+				for (const points of g.paths) {
+					if (points.length < 2) continue;
+					for (let i = 0; i < points.length; i++) {
+						projection.worldToScreen(points[i].x, points[i].y, point);
+						if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) return "";
+						path += `${i ? "L" : "M"}${point.x},${point.y}`;
+					}
+				}
+				return path;
 			},
 			canTransform: () => false
 		},

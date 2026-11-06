@@ -384,3 +384,30 @@ test("workspace preferences persist through activation without document writes",
   b.change("privacy", "full");
   b.dispose();
 });
+
+test('emotional curve grip moves perpendicular to a vertical connection',()=>{
+ const f=fixture();try{
+  const relation={from:'a',to:'b',curveOffset:0},writes=[];
+  f.context.world.getCanonical=(_id,a)=>a===ids.relation?relation:undefined;
+  f.context.world.getComputed=(_id,a)=>a===`computed.${ids.relation}`?{origin:{x:50,y:120},adjustment:{x:50,y:120,axisX:-1,axisY:0,units:1}}:undefined;
+  f.context.world.applyCanonicalTransaction=(_s,ops)=>{writes.push(structuredClone(ops));Object.assign(relation,ops[0].patch);};
+  const dispose=mountInteractions(f.context,()=>{}),handle=f.handles.get('diagram.genogram:relation'),out={};
+  assert.ok(handle.getWorldPosition(out));assert.deepEqual(out,{x:50,y:120});
+  handle.onPointerDown(event('pointerdown',{clientX:150,clientY:170,pointerId:1,button:0}));
+  f.element.dispatchEvent(event('pointermove',{clientX:130,clientY:170,pointerId:1}));assert.equal(writes.length,0);assert.equal(f.previews[0].patch.curveOffset,20);
+  f.element.dispatchEvent(event('pointerup',{clientX:130,clientY:170,pointerId:1}));assert.equal(writes.length,1);assert.equal(relation.curveOffset,20);assert.equal(f.counts().begin,1);dispose();
+ }finally{f.restore();}
+});
+test('child bar adjustment previews and commits siblings together using actual generation distance',()=>{
+ const f=fixture();try{const children={p:{parentA:'a',parentB:'b',union:'u',barRatio:.25},q:{parentA:'a',parentB:'b',union:'u',barRatio:.25}},writes=[];let preview=[];
+  f.context.world.getCanonical=(id,a)=>a===ids.parentage?children[id]:undefined;
+  f.context.world.getComputed=(_id,a)=>a===`computed.${ids.parentage}`?{origin:{x:90,y:150},adjustment:{x:60,y:150,axisX:0,axisY:1,units:80},adjustmentIds:['p','q']}:undefined;
+  f.context.world.createScratchOverlay=()=>({setBatch(ops){preview=structuredClone(ops);},clear(){preview=[];},dispose(){}});
+  f.context.world.applyCanonicalTransaction=(_s,ops)=>{writes.push(structuredClone(ops));for(const op of ops)Object.assign(children[op.id],op.patch);};
+  const dispose=mountInteractions(f.context,()=>{}),h=f.handles.get('diagram.genogram:parentage');
+  const down=()=>h.onPointerDown(event('pointerdown',{clientX:160,clientY:200,pointerId:1,button:0}));
+  down();f.element.dispatchEvent(event('pointermove',{clientX:160,clientY:220,pointerId:1}));assert.equal(preview.length,2);assert.equal(preview[0].patch.barRatio,.5);assert.equal(writes.length,0);
+  f.element.dispatchEvent(event('keydown',{key:'Escape'}));assert.equal(preview.length,0);assert.equal(writes.length,0);
+  down();f.element.dispatchEvent(event('pointermove',{clientX:160,clientY:220,pointerId:1}));f.element.dispatchEvent(event('pointerup',{clientX:160,clientY:220,pointerId:1}));assert.equal(writes.length,1);assert.equal(writes[0].length,2);assert.equal(children.p.barRatio,.5);assert.equal(children.q.barRatio,.5);assert.equal(f.counts().begin,1);dispose();
+ }finally{f.restore();}
+});
