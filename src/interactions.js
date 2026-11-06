@@ -1,3 +1,4 @@
+import { icons } from "./icons.js";
 import { ids, prefix } from "./model.js";
 /** Each active view owns handles and preview; the host owns the frame clock and input arbitration. */
 export function mountInteractions(context, run) {
@@ -83,21 +84,30 @@ export function mountInteractions(context, run) {
     }
     const kinds = [
       "move",
-      "older-sibling",
-      "younger-sibling",
       "add-partner",
       "add-child",
       "add-parents",
-      "add-twin",
       "union",
       "parentage",
       "relation",
     ];
     for (const kind of kinds) {
       const el = document.createElement("button");
-      el.textContent = kind === "move" ? "↔" : kind in ids ? "◆" : "+";
-      el.title = kind;
-      el.setAttribute("aria-label", kind);
+      const title = {
+        move: "세대·형제 간격 이동",
+        "add-partner": "배우자 추가",
+        "add-child": "자녀 추가",
+        "add-parents": "부모 추가",
+        union: "결합선 높이",
+        parentage: "자녀 분기 높이",
+        relation: "정서선 곡률",
+      }[kind];
+      const paths = icons[kind]?.paths;
+      if (paths)
+        el.innerHTML = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join("")}</svg>`;
+      else el.textContent = "◆";
+      el.title = title;
+      el.setAttribute("aria-label", title);
       el.dataset.canvasUi = "true";
       Object.assign(el.style, {
         position: "absolute",

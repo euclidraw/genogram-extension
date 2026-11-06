@@ -197,7 +197,7 @@ export function familyCommands(context, preferences) {
           const p = prop(e, "relation");
           return (p.from === a && p.to === b) || (p.from === b && p.to === a);
         }).length;
-      entity(ops, "relation", {
+      focus = entity(ops, "relation", {
         from: a,
         to: b,
         kind: name.slice(9),

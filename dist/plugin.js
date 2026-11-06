@@ -1,3 +1,45 @@
+// src/icons.js
+var icon = (...paths) => ({
+	size: 20,
+	paths
+});
+var icons = {
+	move: icon("M10 2v16M2 10h16M7 5l3-3 3 3M7 15l3 3 3-3M5 7l-3 3 3 3M15 7l3 3-3 3"),
+	"add-person": icon("M7 5a3 3 0 1 0 6 0a3 3 0 1 0-6 0M4 18v-3a6 6 0 0 1 12 0v3", "M15 6h5M17.5 3.5v5"),
+	"edit-person": icon("M4 14 14 4l3 3L7 17H4zM12 6l3 3"),
+	"older-sibling": icon("M8 6 4 10l4 4M4 10h12M12 5v10"),
+	"younger-sibling": icon("M12 6l4 4-4 4M16 10H4M8 5v10"),
+	"add-partner": icon("M2 4h5v5H2zM13 6a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M4.5 11v4h11v-4M10 15v4"),
+	"add-child": icon("M3 3h5v5H3zM12 3h5v5h-5zM5.5 8v3h9V8M10 11v4M7.5 15h5v4h-5z"),
+	"add-parents": icon("M3 3h5v5H3zM12 3h5v5h-5zM5.5 8v3h9V8M10 11v5M7 15l3 3 3-3"),
+	"add-twin": icon("M10 2v5M10 7 4 14M10 7l6 7M2 14h4v4H2zM14 14h4v4h-4z"),
+	"connect-union": icon("M2 3h5v5H2zM13 3h5v5h-5zM4.5 9v6h11V9"),
+	"connect-parentage": icon("M3 2h5v5H3zM12 2h5v5h-5zM5.5 8v3h9V8M10 11v4M8 15h4v4H8z"),
+	"connect-twins": icon("M10 2v5M10 7 4 14M10 7l6 7M4 11h12"),
+	"connect-relation": icon("M2 10h3l2-5 3 10 3-10 2 5h3"),
+	reverse: icon("M3 6h14l-4-4M17 14H3l4 4"),
+	household: icon("M2 10 10 3l8 7M4 9v9h12V9M8 18v-6h4v6"),
+	"toggle-membership": icon("M2 10 10 3l8 7M4 9v9h8M14 15h6M17 12v6"),
+	"tidy-layout": icon("M2 4h16M2 10h16M2 16h16M5 2v4M10 8v4M15 14v4"),
+	privacy: icon("M2 10q8-12 16 0q-8 12-16 0M8 10a2 2 0 1 0 4 0a2 2 0 1 0-4 0"),
+	"mask-years": icon("M3 4h14v14H3zM3 8h14M6 2v4M14 2v4M6 12h8M6 15h4"),
+	"show-relations": icon("M2 10h4l2-5 4 10 2-5h4"),
+	"show-households": icon("M2 10 10 3l8 7M4 9v9h12V9"),
+	"show-notes": icon("M4 2h12v16H4zM7 6h6M7 10h6M7 14h4")
+};
+for (const name of [
+	"template-nuclear",
+	"template-three-generation",
+	"template-single-parent",
+	"template-remarried"
+]) icons[name] = icons["add-child"];
+for (const name of [
+	"relation-close",
+	"relation-fused",
+	"relation-hostile",
+	"relation-cutoff",
+	"relation-focused_on"
+]) icons[name] = icons["connect-relation"];
 // src/model.js
 var prefix = "diagram.genogram";
 var ids = Object.fromEntries([
@@ -63,6 +105,7 @@ var commandNames = [
 	"add-child",
 	"add-parents",
 	"add-twin",
+	"connect-relation",
 	"connect-union",
 	"connect-parentage",
 	"connect-twins",
@@ -423,20 +466,28 @@ function mountInteractions(context, run) {
 		}
 		for (const kind of [
 			"move",
-			"older-sibling",
-			"younger-sibling",
 			"add-partner",
 			"add-child",
 			"add-parents",
-			"add-twin",
 			"union",
 			"parentage",
 			"relation"
 		]) {
 			const el = document.createElement("button");
-			el.textContent = kind === "move" ? "↔" : kind in ids ? "◆" : "+";
-			el.title = kind;
-			el.setAttribute("aria-label", kind);
+			const title = {
+				move: "세대·형제 간격 이동",
+				"add-partner": "배우자 추가",
+				"add-child": "자녀 추가",
+				"add-parents": "부모 추가",
+				union: "결합선 높이",
+				parentage: "자녀 분기 높이",
+				relation: "정서선 곡률"
+			}[kind];
+			const paths = icons[kind]?.paths;
+			if (paths) el.innerHTML = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join("")}</svg>`;
+			else el.textContent = "◆";
+			el.title = title;
+			el.setAttribute("aria-label", title);
 			el.dataset.canvasUi = "true";
 			Object.assign(el.style, {
 				position: "absolute",
@@ -1211,7 +1262,7 @@ function make(kind, derive) {
 				kind: "segmented",
 				field,
 				label: labels$1[field] ?? field,
-				placement: "selection-bar",
+				placement: "inspector",
 				options: values.map((value) => ({
 					value,
 					label: labels$1[value] ?? value
@@ -1409,7 +1460,7 @@ function familyCommands(context, preferences) {
 				const p = prop(e, "relation");
 				return p.from === a && p.to === b || p.from === b && p.to === a;
 			}).length;
-			entity(ops, "relation", {
+			focus = entity(ops, "relation", {
 				from: a,
 				to: b,
 				kind: name.slice(9),
@@ -1532,6 +1583,7 @@ var labels = {
 	"add-child": "자녀 추가",
 	"add-parents": "부모 추가",
 	"add-twin": "쌍둥이 추가",
+	"connect-relation": "정서 관계 연결",
 	"connect-union": "부부로 연결",
 	"connect-parentage": "첫 선택 부모 → 자녀 연결",
 	"connect-twins": "쌍둥이로 묶기",
@@ -1558,15 +1610,40 @@ var src_default = {
 	...createPackageManifest(extension_default),
 	summary: extension_default.summary,
 	aspects: [person, ...lines],
-	ui: { controls: commandNames.map((name) => ({
-		id: name,
-		kind: "action",
-		label: labels[name],
-		commandSymbol: `${prefix}:${name}`,
-		placement: name === "add-person" || name.startsWith("template-") ? "tool-shelf" : name === "privacy" || name.startsWith("show-") || name === "mask-years" ? "settings" : "selection-bar",
-		requiresSelection: !(name === "add-person" || name.startsWith("template-") || name === "privacy" || name.startsWith("show-") || name === "mask-years"),
-		minSelectionCount: name.startsWith("connect-") || name.startsWith("relation-") ? 2 : name === "add-person" || name.startsWith("template-") || name === "privacy" || name.startsWith("show-") || name === "mask-years" ? 0 : 1
-	})) },
+	ui: { controls: commandNames.map((name) => {
+		const global = name === "add-person" || name.startsWith("template-") || [
+			"privacy",
+			"mask-years",
+			"show-relations",
+			"show-households",
+			"show-notes"
+		].includes(name);
+		const floating = [
+			"connect-union",
+			"connect-parentage",
+			"connect-relation",
+			"household"
+		].includes(name);
+		const aspectId = global ? void 0 : name === "reverse" ? ids.relation : name === "toggle-membership" ? ids.household : ids.person;
+		return {
+			id: name,
+			kind: "action",
+			label: labels[name],
+			icon: icons[name],
+			commandSymbol: `${prefix}:${name}`,
+			placement: name === "add-person" ? "tool-shelf" : [
+				"privacy",
+				"mask-years",
+				"show-relations",
+				"show-households",
+				"show-notes"
+			].includes(name) ? "settings" : floating ? "selection-bar" : "inspector",
+			...aspectId ? { aspectId } : {},
+			requiresSelection: !global,
+			minSelectionCount: floating ? 2 : global ? 0 : 1,
+			...name.startsWith("connect-") ? { maxSelectionCount: 2 } : {}
+		};
+	}) },
 	activate(context) {
 		const preferences = bindPreferences(context), family = familyCommands(context, preferences), editor = mountInlineEditor(context), off = [() => preferences.dispose(), () => editor.dispose()];
 		const execute = (name) => {
@@ -1575,7 +1652,7 @@ var src_default = {
 				if (selected?.length === 1) editor.open(selected[0]);
 				return;
 			}
-			const result = family.run(name);
+			const result = family.run(name === "connect-relation" ? "relation-close" : name);
 			if (name === "add-person" && result) editor.open(result);
 			return result;
 		};

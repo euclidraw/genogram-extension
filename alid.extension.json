@@ -70,7 +70,7 @@
   "title": "가계도",
   "summary": "상담용 인물 기호와 가족 관계를 작성합니다.",
   "entry": "dist/plugin.js",
-  "sha256": "844dd9d750ca8c220cdbd93b30efa32722728249241697d34e662b4f8fedf06d",
+  "sha256": "a48ad981ea011f190de254aaabcaac4e9684fa63dcc40375a58a5411ef48f6e0",
   "aspectIds": [
     "diagram.genogram.person",
     "diagram.genogram.union",
@@ -113,6 +113,7 @@
       "diagram.genogram:add-child",
       "diagram.genogram:add-parents",
       "diagram.genogram:add-twin",
+      "diagram.genogram:connect-relation",
       "diagram.genogram:connect-union",
       "diagram.genogram:connect-parentage",
       "diagram.genogram:connect-twins",

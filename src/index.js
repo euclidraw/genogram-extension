@@ -1,3 +1,4 @@
+import { icons } from "./icons.js";
 import { bindPreferences } from "./preferences.js";
 import { mountInlineEditor } from "./inline-editor.js";
 import { mountInteractions } from "./interactions.js";
@@ -16,6 +17,7 @@ const labels = {
   "add-child": "자녀 추가",
   "add-parents": "부모 추가",
   "add-twin": "쌍둥이 추가",
+  "connect-relation": "정서 관계 연결",
   "connect-union": "부부로 연결",
   "connect-parentage": "첫 선택 부모 → 자녀 연결",
   "connect-twins": "쌍둥이로 묶기",
@@ -43,37 +45,56 @@ export default {
   summary: metadata.summary,
   aspects: [person, ...lines],
   ui: {
-    controls: commandNames.map((name) => ({
-      id: name,
-      kind: "action",
-      label: labels[name],
-      commandSymbol: `${prefix}:${name}`,
-      placement:
-        name === "add-person" || name.startsWith("template-")
-          ? "tool-shelf"
-          : name === "privacy" ||
-              name.startsWith("show-") ||
-              name === "mask-years"
-            ? "settings"
-            : "selection-bar",
-      requiresSelection: !(
+    controls: commandNames.map((name) => {
+      const global =
         name === "add-person" ||
         name.startsWith("template-") ||
-        name === "privacy" ||
-        name.startsWith("show-") ||
-        name === "mask-years"
-      ),
-      minSelectionCount:
-        name.startsWith("connect-") || name.startsWith("relation-")
-          ? 2
-          : name === "add-person" ||
-              name.startsWith("template-") ||
-              name === "privacy" ||
-              name.startsWith("show-") ||
-              name === "mask-years"
-            ? 0
-            : 1,
-    })),
+        [
+          "privacy",
+          "mask-years",
+          "show-relations",
+          "show-households",
+          "show-notes",
+        ].includes(name);
+      const floating = [
+        "connect-union",
+        "connect-parentage",
+        "connect-relation",
+        "household",
+      ].includes(name);
+      const aspectId = global
+        ? undefined
+        : name === "reverse"
+          ? ids.relation
+          : name === "toggle-membership"
+            ? ids.household
+            : ids.person;
+      return {
+        id: name,
+        kind: "action",
+        label: labels[name],
+        icon: icons[name],
+        commandSymbol: `${prefix}:${name}`,
+        placement:
+          name === "add-person"
+            ? "tool-shelf"
+            : [
+                  "privacy",
+                  "mask-years",
+                  "show-relations",
+                  "show-households",
+                  "show-notes",
+                ].includes(name)
+              ? "settings"
+              : floating
+                ? "selection-bar"
+                : "inspector",
+        ...(aspectId ? { aspectId } : {}),
+        requiresSelection: !global,
+        minSelectionCount: floating ? 2 : global ? 0 : 1,
+        ...(name.startsWith("connect-") ? { maxSelectionCount: 2 } : {}),
+      };
+    }),
   },
   activate(context) {
     const preferences = bindPreferences(context),
@@ -89,7 +110,9 @@ export default {
         if (selected?.length === 1) editor.open(selected[0]);
         return;
       }
-      const result = family.run(name);
+      const result = family.run(
+        name === "connect-relation" ? "relation-close" : name,
+      );
       if (name === "add-person" && result) editor.open(result);
       return result;
     };

@@ -329,7 +329,7 @@ function make(kind, derive) {
           kind: "segmented",
           field,
           label: labels[field] ?? field,
-          placement: "selection-bar",
+          placement: "inspector",
           options: values.map((value) => ({
             value,
             label: labels[value] ?? value,

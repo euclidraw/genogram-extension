@@ -55,6 +55,7 @@ export const commandNames = [
   "add-child",
   "add-parents",
   "add-twin",
+  "connect-relation",
   "connect-union",
   "connect-parentage",
   "connect-twins",
