@@ -5,6 +5,7 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import assert from "node:assert/strict";
 import plugin from "../dist/plugin.js";
+import { registerGenogramTools } from "../src/tools.js";
 const host = resolve(process.env.ALID_PATH ?? "../alid"),
   dir = await mkdtemp(join(tmpdir(), "genogram-host-"));
 try {
@@ -13,6 +14,7 @@ try {
     entry,
     `export {CommandRegistry} from ${JSON.stringify(join(host, "packages/kernel/src/commands.ts"))};export {ServiceRegistry} from ${JSON.stringify(join(host, "packages/kernel/src/services.ts"))};export {ExtensionRuntimeRegistry} from ${JSON.stringify(join(host, "packages/kernel/src/extension-controller.ts"))};export {CanvasWorld} from ${JSON.stringify(join(host, "packages/kernel/src/kernel-data.ts"))};export {SceneVectorCompiler} from ${JSON.stringify(join(host, "packages/kernel/src/scene-compiler.ts"))};export {installPorcelainExtension} from ${JSON.stringify(join(host, "packages/kernel/src/porcelain-and-trust.ts"))};`,
   );
+  await writeFile(entry, (await readFile(entry, 'utf8')) + `export {createWorkspaceChanges} from ${JSON.stringify(join(host, "packages/kernel/src/workspace-changes.ts"))};export {WorkspaceToolRegistry} from ${JSON.stringify(join(host, "packages/kernel/src/workspace-tools.ts"))};`);
   await build({
     configFile: false,
     logLevel: "error",
@@ -30,6 +32,8 @@ try {
     CommandRegistry,
     ServiceRegistry,
     ExtensionRuntimeRegistry,
+    createWorkspaceChanges,
+    WorkspaceToolRegistry,
   } = await import(pathToFileURL(join(dir, "out/host.mjs")));
   const wasm = await import(
     pathToFileURL(join(host, "crates/ecanvas-core/pkg/ecanvas_core.js"))
@@ -149,6 +153,34 @@ try {
   preview.set(personId, "core.transform", { x: 999999 });
   assert.equal(compiler.compileToPureSvg(world), svg);
   preview.dispose();
+  const lifetime = new AbortController();
+  const changes = createWorkspaceChanges(world, (caller, ops) => {
+    core.begin_undo_group();
+    try { world.applyCanonicalTransaction(caller, ops); core.end_undo_group(); }
+    catch (error) { core.abort_undo_group(); world.replaceCanonicalSnapshot(core.get_canonical_json()); throw error; }
+  }, () => ({ documentId: 'test-doc', viewId: 'main', signal: lifetime.signal }));
+  const toolRegistry = new WorkspaceToolRegistry(changes);
+  const access = toolRegistry.forExtension('diagram.genogram', plugin.aspects.map(a => a.id), () => {}, () => true);
+  const offTools = registerGenogramTools({ world, services: { get: () => access } });
+  const beforePlan = core.dump_canonical_jsonl(), beforePlanCommits = commits;
+  const toolPlan = await access.invoke('diagram.genogram:plan-changes', { actions: JSON.stringify([
+    { action: 'create', kind: 'person', id: 'new', patch: { name: 'AI 제안 인물' }, x: 500, y: 240 },
+    { action: 'create', kind: 'relation', patch: { from: personId, to: 'new', kind: 'close' } },
+    { action: 'move', id: personId, x: 50, y: 20 },
+  ]) }, lifetime.signal);
+  assert.equal(core.dump_canonical_jsonl(), beforePlan, 'planning never writes');
+  assert.equal(commits, beforePlanCommits);
+  changes.apply(access.getChangeProposal(toolPlan.changeProposalId));
+  assert.equal(commits, beforePlanCommits + 1, 'approval is one batch');
+  assert.ok(compiler.compileToPureSvg(world).includes('AI 제안 인물'));
+  assert.equal(core.undo(), true); world.replaceCanonicalSnapshot(core.get_canonical_json());
+  assert.equal(core.dump_canonical_jsonl(), beforePlan, 'one Undo reverts entire AI batch');
+  const deletePlan = await access.invoke('diagram.genogram:plan-changes', { actions: JSON.stringify([{ action: 'delete', id: personId }]) }, lifetime.signal);
+  changes.apply(access.getChangeProposal(deletePlan.changeProposalId));
+  assert.equal(world.isAlive(personId), false);
+  assert.equal(core.undo(), true); world.replaceCanonicalSnapshot(core.get_canonical_json());
+  assert.equal(core.dump_canonical_jsonl(), beforePlan, 'one Undo restores person and cascaded relationships');
+  offTools(); toolRegistry.dispose(); lifetime.abort();
   const unionId = world.listEntityIds().find(id => world.getCanonical(id, "diagram.genogram.union"));
   const parentId = world.getCanonical(unionId, "diagram.genogram.union").partnerA;
   world.applyCanonicalTransaction("test:label-clear", [{ id: parentId, aspect: "diagram.genogram.person", patch: { name: "", yearSpan: "", note: "" } }]);

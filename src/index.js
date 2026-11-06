@@ -8,6 +8,7 @@ import { prefix, commandNames, ids } from "./model.js";
 import { person } from "./aspects/person.js";
 import { lines } from "./aspects/lines.js";
 import { familyCommands } from "./commands/family.js";
+import { registerGenogramTools } from "./tools.js";
 const labels = {
   "edit-person": "인물 바로 편집",
   "add-person": "내담자·인물 추가",
@@ -118,6 +119,7 @@ export default {
       return result;
     };
     try {
+      off.push(registerGenogramTools(context));
       for (const name of commandNames)
         off.push(
           context.commands.register({

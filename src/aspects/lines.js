@@ -390,7 +390,7 @@ const refs = {
   relation: { from: "cascade-hide", to: "cascade-hide" },
   household: {},
 };
-const enumerations = {
+export const enumerations = {
   union: {
     status: [
       "marriage",

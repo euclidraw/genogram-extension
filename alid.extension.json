@@ -51,7 +51,7 @@
       "defaultValue": true
     }
   ],
-  "version": "0.1.2",
+  "version": "0.1.3",
   "engine": "^0.1.1",
   "dependencies": {},
   "optionalDependencies": {},
@@ -70,7 +70,7 @@
   "title": "가계도",
   "summary": "상담용 인물 기호와 가족 관계를 작성합니다.",
   "entry": "dist/plugin.js",
-  "sha256": "837b40956725340e08e06c7fb8d38a16359cd984ec8e87f215f33a9200753db5",
+  "sha256": "f8177fad408237a196a656708dacdef70a299e81e369a153d3c2afde8ffd9bf9",
   "aspectIds": [
     "diagram.genogram.person",
     "diagram.genogram.union",
@@ -102,7 +102,8 @@
       "canvas.active-tool-surface",
       "canvas.frames",
       "extensions.preferences",
-      "canvas.text-history"
+      "canvas.text-history",
+      "workspace.tools"
     ],
     "commands": [
       "diagram.genogram:edit-person",
