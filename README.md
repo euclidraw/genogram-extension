@@ -37,7 +37,7 @@ ALID_PATH=/path/to/alid pnpm test:host
 
 인물 위쪽의 ↔ 핸들로 이동하면 다른 가족 구성원의 세대(240)·형제 간격(110)에 화면 8px 이내로 접근할 때 맞춰집니다. 기본 몸체 드래그는 호스트의 선택·스냅 동작을 따릅니다. 핸들 드래그의 Escape·포인터 캡처 상실은 정본 쓰기 없이 취소됩니다.
 
-이 버전은 alid의 새 공개 서비스 `extensions.preferences`가 필요합니다. 호스트 변경 설명은 alid 저장소 `docs/extension-preferences.md`에 있습니다. 이전 호스트에는 이 변경을 먼저 반영해야 합니다.
+확장 0.1.1은 alid 커널 0.1.1 이상(0.1.x)과 새 공개 서비스 `extensions.preferences`가 필요합니다. 호스트 변경 설명은 alid 저장소 `docs/extension-preferences.md`에 있습니다. 이전 호스트에는 이 변경을 먼저 반영해야 합니다.
 
 호스트 통합 검사는 실제 Rust Undo/Redo, JSONL 읽기 순수성, DOM 없는 SceneVectorCompiler 출력 및 임시 드래그 기하 배제, 외부 패키지 로더와 설정 재로드를 검증합니다. OS 한국어 입력기·분할 뷰 수동 검증과 1,000개 엔티티 120fps·0-GC 실측은 자동 테스트 통과와 구분합니다. SVG 기호는 기관별 표기 차이에 맞춰 검토해야 합니다.
 

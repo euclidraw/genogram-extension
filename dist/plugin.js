@@ -682,9 +682,9 @@ function mountInteractions(context, run) {
 var extension_default = {
 	id: "diagram.genogram",
 	title: "가계도",
-	version: "0.1.0",
+	version: "0.1.1",
 	summary: "상담용 인물 기호와 가족 관계를 작성합니다.",
-	engine: "^0.1.0",
+	engine: "^0.1.1",
 	dependencies: {},
 	optionalDependencies: {},
 	conflicts: [],
