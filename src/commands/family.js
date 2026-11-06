@@ -192,16 +192,11 @@ export function familyCommands(context, preferences) {
         op(pb, "parentage", { twinWith: a, twinType: "fraternal" }),
       );
     } else if (name.startsWith("relation-")) {
-      const [a, b] = requirePeople(2),
-        count = all("relation").filter((e) => {
-          const p = prop(e, "relation");
-          return (p.from === a && p.to === b) || (p.from === b && p.to === a);
-        }).length;
+      const [a, b] = requirePeople(2);
       focus = entity(ops, "relation", {
         from: a,
         to: b,
         kind: name.slice(9),
-        curveOffset: 28 * (count + 1),
       });
     } else if (name === "reverse") {
       for (const e of selected()) {

@@ -12,6 +12,9 @@ export const defaults = {
     lifeStatus: "alive",
     isIndexPerson: false,
     clinical: "none",
+    smoking: false,
+    obesity: false,
+    languageDifficulty: false,
     name: "",
     ageLabel: "",
     yearSpan: "",
@@ -36,7 +39,7 @@ export const defaults = {
     twinType: "none",
     barRatio: 0.5,
   },
-  relation: { from: null, to: null, kind: "close", curveOffset: 0, label: "" },
+  relation: { from: null, to: null, kind: "close", curveOffset: 0, color: "#dc2626", label: "" },
   household: {
     label: "동거 가구",
     padding: 28,

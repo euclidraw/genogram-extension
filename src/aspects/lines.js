@@ -1,4 +1,8 @@
 import { labels } from "../ui-labels.js";
+import { labelExtent } from "./person.js";
+import { relationshipIcons } from "../relationship-icons.js";
+import { pathsAroundLabels } from "../geometry/label-gaps.js";
+import { personSymbol, pathsOutsideSymbols } from "../geometry/person-anchors.js";
 import {
   ids,
   defaults,
@@ -16,6 +20,7 @@ import {
   pathData,
 } from "../geometry/paths.js";
 const people = (v) => v.listEntityIds?.() ?? [];
+const RELATION_WIDTH_SCALE = 2 / 3;
 function anchor(v, id, bottom = false) {
   const b = personBounds(v, id);
   if (!b) return;
@@ -32,9 +37,30 @@ function anchor(v, id, bottom = false) {
 function labelBottom(v, id) {
   const b = personBounds(v, id),
     p = v.getCanonical(id, ids.person);
-  return b
-    ? b.y + 110 + 16 * (String(p?.note ?? "").split("\n").length - 1)
-    : 0;
+  return b ? b.y + Math.max(110 + 16 * (String(p?.note ?? "").split("\n").length - 1), (labelExtent(p, b.width)?.bottom ?? 4) - 4) : 0;
+}
+// Build display geometry from the same segments used for picking and export.
+function dashLine(points, on = 6, off = 4) {
+  const paths = []; let phase = 0;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1], b = points[i], dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy);
+    if (!length) continue;
+    let at = 0;
+    while (at < length - 1e-9) {
+      const draw = phase < on, take = Math.min(length - at, (draw ? on : on + off) - phase);
+      if (take <= 1e-9) { phase = 0; continue; }
+      if (draw) paths.push([P(a.x + dx * at / length, a.y + dy * at / length), P(a.x + dx * (at + take) / length, a.y + dy * (at + take) / length)]);
+      at += take; phase = (phase + take) % (on + off);
+    }
+  }
+  return paths;
+}
+function ring(center, radius, steps = 24) {
+  return Array.from({ length: steps + 1 }, (_, i) => P(center.x + radius * Math.cos(i * 2 * Math.PI / steps), center.y + radius * Math.sin(i * 2 * Math.PI / steps)));
+}
+function parallel(points, offset) {
+  const a = points[0], b = points[points.length - 1], dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy) || 1;
+  return points.map(point => P(point.x - dy / length * offset, point.y + dx / length * offset));
 }
 function unionGeometry(p, id, v) {
   const a = anchor(v, p.partnerA, true),
@@ -43,11 +69,21 @@ function unionGeometry(p, id, v) {
   const y =
     Math.max(a.y, b.y, labelBottom(v, p.partnerA), labelBottom(v, p.partnerB)) +
     Math.max(12, finite(p.barOffset, 44));
-  return {
-    paths: [[a, P(a.x, y), P(b.x, y), b]],
-    origin: P((a.x + b.x) / 2, y),
-    label: p.label,
-  };
+  const origin = P((a.x + b.x) / 2, y), middle = [P(a.x, y), P(b.x, y)];
+  const middlePaths = p.status === "cohabitation" ? dashLine(middle, 6, 4)
+    : p.status === "engagement" ? dashLine(middle, 2, 4)
+    : p.status === "secret_affair" ? dashLine(middle, 1, 5) : [middle];
+  const paths = [[a, middle[0]], ...middlePaths, [middle[1], b]];
+  if (["separation", "divorce", "reunion_divorce", "reunion_separation"].includes(p.status)) {
+    const count = p.status.includes("divorce") ? 2 : 1;
+    for (let i = 0; i < count; i++) {
+      const x = origin.x + (i - (count - 1) / 2) * 7;
+      paths.push([P(x - 5, y + 8), P(x + 5, y - 8)]);
+    }
+    if (p.status.startsWith("reunion")) paths.push(ring(origin, 12));
+  }
+  return { paths, origin, label: p.label };
+
 }
 function parentageGeometry(p, id, v) {
   const a = anchor(v, p.parentA, true),
@@ -85,71 +121,67 @@ function parentageGeometry(p, id, v) {
     paths.push([o, P(o.x, y)], [P(Math.min(...xs), y), P(Math.max(...xs), y)]);
   }
   const twin = p.twinType !== "none" && anchor(v, p.twinWith);
-  if (twin) {
-    const mid = (c.x + twin.x) / 2;
-    paths.push([P(mid, y), c]);
-    if (p.child < p.twinWith && p.twinType === "identical")
-      paths.push([
-        P((mid + c.x) / 2, (y + c.y) / 2),
-        P((mid + twin.x) / 2, (y + twin.y) / 2),
-      ]);
-  } else paths.push([P(c.x, y), c]);
-  return { paths, origin: P(c.x, y), label: "" };
+  const mid = twin ? (c.x + twin.x) / 2 : c.x;
+  const branch = [P(mid, y), c];
+  if (p.pedigree === "foster") paths.push(...dashLine(branch));
+  else if (p.pedigree === "adopted") paths.push(parallel(branch, -3), ...dashLine(parallel(branch, 3)));
+  else paths.push(branch);
+  if (twin && p.child < p.twinWith && p.twinType === "identical")
+    paths.push([P((mid + c.x) / 2, (y + c.y) / 2), P((mid + twin.x) / 2, (y + twin.y) / 2)]);
+  return { paths, origin: P(c.x, y), label: p.pedigree === "surrogate" ? "대리" : "" };
 }
 function relationGeometry(p, id, v) {
-  const a = anchor(v, p.from, true),
-    b = anchor(v, p.to);
-  if (!a || !b) return;
-  const dx = b.x - a.x,
-    dy = b.y - a.y,
-    len = Math.hypot(dx, dy);
+  const start = personSymbol(v, p.from), end = personSymbol(v, p.to);
+  if (!start || !end) return;
+  const a = P(start.x, start.y), b = P(end.x, end.y);
+  const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
   if (len < 1) return;
-  const nx = -dy / len,
-    ny = dx / len,
-    off = finite(p.curveOffset),
-    count = Math.max(2, Math.ceil(len / 6)),
-    paths = [];
-  const copies =
-    p.kind === "fused"
-      ? 3
-      : p.kind === "close" || p.kind === "fused_hostile"
-        ? 2
-        : 1;
-  for (let k = 0; k < copies; k++) {
-    const pts = [];
+  const nx = -dy / len, ny = dx / len, off = finite(p.curveOffset), count = Math.max(2, Math.ceil(len / 6));
+  const mid = P((a.x + b.x) / 2 + nx * off, (a.y + b.y) / 2 + ny * off), paths = [], fills = [];
+  const curve = (offset = 0, zigzag = false) => {
+    const points = [];
     for (let i = 0; i <= count; i++) {
-      const t = i / count,
-        zig =
-          (p.kind.includes("hostile") || p.kind.startsWith("abuse")) &&
-          i > 0 &&
-          i < count
-            ? i % 2
-              ? 4
-              : -4
-            : 0,
-        h = 4 * off * t * (1 - t) + (k - (copies - 1) / 2) * 5 + zig;
-      pts.push(P(a.x + dx * t + nx * h, a.y + dy * t + ny * h));
+      const t = i / count, zig = zigzag && i > 0 && i < count ? (i % 2 ? 4 : -4) * RELATION_WIDTH_SCALE : 0;
+      const h = 4 * off * t * (1 - t) + offset + zig;
+      points.push(P(a.x + dx * t + nx * h, a.y + dy * t + ny * h));
     }
-    paths.push(pts);
+    return points;
+  };
+  const push = (points, fill = "none") => { paths.push(points); fills.push(fill); };
+  const addDashed = points => { for (const segment of dashLine(points, 4, 3)) push(segment); };
+  const kind = p.kind;
+  const visibleCenter = pathsOutsideSymbols([curve()], [start, end]);
+  if (!visibleCenter.length) return;
+  const lastCenter = visibleCenter[visibleCenter.length - 1];
+  const targetPoint = lastCenter[lastCenter.length - 1];
+  const endParameter = Math.max(0, Math.min(1, ((targetPoint.x - a.x) * dx + (targetPoint.y - a.y) * dy) / (len * len)));
+  if (kind === "cutoff" || kind === "cutoff_repaired" || kind === "estranged") {
+    const base = curve(), cut = Math.floor(count / 2), left = base.slice(0, Math.max(1, cut - 1)), right = base.slice(Math.min(count, cut + 2));
+    if (kind === "cutoff_repaired" || kind === "estranged") { addDashed(left); addDashed(right); } else { push(left); push(right); }
+    for (const d of [-5, 5]) push([P(mid.x + dx / len * d - nx * 7 * RELATION_WIDTH_SCALE, mid.y + dy / len * d - ny * 7 * RELATION_WIDTH_SCALE), P(mid.x + dx / len * d + nx * 7 * RELATION_WIDTH_SCALE, mid.y + dy / len * d + ny * 7 * RELATION_WIDTH_SCALE)]);
+    if (kind === "cutoff_repaired") push(ring(mid, 4 * RELATION_WIDTH_SCALE), "white");
+  } else {
+    if (["close", "close_hostile", "fused", "fused_hostile", "abuse_sexual"].includes(kind)) { push(curve(-6 * RELATION_WIDTH_SCALE)); push(curve(6 * RELATION_WIDTH_SCALE)); }
+    if (kind === "fused") push(curve());
+    else if (kind === "fused_hostile") { push(curve()); push(curve(0, true)); }
+    else if (["close_hostile", "hostile", "negative_focused", "abuse_physical", "abuse_emotional", "abuse_sexual"].includes(kind)) push(curve(0, true));
+    else if (kind === "distant") addDashed(curve());
+    else if (kind !== "close") push(curve());
+    if (["focused_on", "negative_focused", "caregiving", "abuse_physical", "abuse_emotional", "abuse_sexual"].includes(kind)) {
+      const arrow = (distance, filled) => {
+        const t = Math.max(0, endParameter - distance / len), h = 4 * off * t * (1 - t);
+        const tip = distance === 0 ? targetPoint : P(a.x + dx * t + nx * h, a.y + dy * t + ny * h);
+        // The derivative of the same curve gives the arrow's exact local direction.
+        const tx = dx + nx * 4 * off * (1 - 2 * t), ty = dy + ny * 4 * off * (1 - 2 * t), length = Math.hypot(tx, ty);
+        const ux = tx / length, uy = ty / length, back = P(tip.x - ux * 10, tip.y - uy * 10);
+        const left = P(back.x - uy * 5 * RELATION_WIDTH_SCALE, back.y + ux * 5 * RELATION_WIDTH_SCALE), right = P(back.x + uy * 5 * RELATION_WIDTH_SCALE, back.y - ux * 5 * RELATION_WIDTH_SCALE);
+        push(filled ? [left, tip, right, left] : [left, tip, right], filled === "solid" ? "solid" : filled === "hollow" ? "white" : "none");
+      };
+      arrow(0, kind === "abuse_physical" || kind === "abuse_sexual" ? "solid" : kind === "abuse_emotional" ? "hollow" : false);
+      if (kind === "caregiving") arrow(12, false);
+    }
   }
-  const mid = P((a.x + b.x) / 2 + nx * off, (a.y + b.y) / 2 + ny * off);
-  if (p.kind.startsWith("cutoff") || p.kind === "estranged") {
-    const ps = paths.shift(),
-      cut = Math.floor(ps.length / 2);
-    paths.push(ps.slice(0, Math.max(1, cut - 1)), ps.slice(cut + 2));
-    for (const d of [-4, 4])
-      paths.push([
-        P(mid.x + (dx / len) * d - nx * 8, mid.y + (dy / len) * d - ny * 8),
-        P(mid.x + (dx / len) * d + nx * 8, mid.y + (dy / len) * d + ny * 8),
-      ]);
-  }
-  if (p.kind === "focused_on" || p.kind.startsWith("abuse"))
-    paths.push([
-      P(b.x - (dx / len) * 12 + nx * 6, b.y - (dy / len) * 12 + ny * 6),
-      b,
-      P(b.x - (dx / len) * 12 - nx * 6, b.y - (dy / len) * 12 - ny * 6),
-    ]);
-  return { paths, origin: mid, label: p.label };
+  return { paths, fills, origin: mid, label: p.label, clipSymbols: [start, end] };
 }
 function householdGeometry(p, id, v) {
   const boxes = people(v)
@@ -204,6 +236,9 @@ const enumerations = {
       "distant",
       "hostile",
       "fused_hostile",
+      "close_hostile",
+      "negative_focused",
+      "caregiving",
       "cutoff",
       "cutoff_repaired",
       "estranged",
@@ -234,7 +269,20 @@ function make(kind, derive) {
       "computed.layoutBounds",
       ...(kind === "parentage" ? [`computed.${ids.union}`] : []),
     ],
-    derive,
+    derive(p, id, view) {
+      const geometry = derive(p, id, view);
+      if (!geometry || kind === "household") return geometry;
+      const paths = [], fills = [];
+      geometry.paths.forEach((path, index) => {
+        const outside = geometry.clipSymbols ? pathsOutsideSymbols([path], geometry.clipSymbols) : [path];
+        for (const candidate of outside) for (const visible of pathsAroundLabels([candidate], view)) {
+          const first = visible[0], last = visible[visible.length - 1];
+          const closed = first && last && Math.hypot(first.x - last.x, first.y - last.y) < 1e-8;
+          paths.push(visible); fills.push(closed ? geometry.fills?.[index] ?? "none" : "none");
+        }
+      });
+      return { ...geometry, paths, fills };
+    },
     paintBounds: (g) => {
       if (!g) return;
       const b = bounds(g.paths, 20);
@@ -252,40 +300,11 @@ function make(kind, derive) {
         (kind === "household" && !lens.showHouseholds)
       )
         return { svg: "" };
-      let paths = g.paths.map((ps) => `<path d="${pathData(ps)}"/>`).join("");
+      const color = (kind === "relation" || kind === "household") && typeof p.color === "string" && /^#[\da-f]{6}$/i.test(p.color)
+        ? p.color : kind === "relation" ? "#dc2626" : "#334155";
+      const paths = g.paths.map((ps, index) => `<path d="${pathData(ps)}" fill="${g.fills?.[index] === "solid" ? color : g.fills?.[index] === "white" ? "white" : "none"}"/>`).join("");
       const o = g.origin;
-      if (kind === "relation" && p.kind === "cutoff_repaired")
-        paths += `<circle cx="${o.x}" cy="${o.y}" r="5"/>`;
-      if (
-        kind === "union" &&
-        [
-          "separation",
-          "divorce",
-          "reunion_divorce",
-          "reunion_separation",
-        ].includes(p.status)
-      ) {
-        const n = p.status.includes("divorce") ? 2 : 1;
-        for (let i = 0; i < n; i++)
-          paths += `<path d="M ${o.x + i * 7 - 5} ${o.y + 8} l 10 -16"/>`;
-        if (p.status.startsWith("reunion"))
-          paths += `<circle cx="${o.x}" cy="${o.y}" r="12"/>`;
-      }
-      let dash =
-        kind === "household" ||
-        ["distant", "estranged", "abuse_emotional"].includes(p.kind) ||
-        ["cohabitation", "engagement", "secret_affair"].includes(p.status) ||
-        ["adopted", "foster"].includes(p.pedigree)
-          ? ' stroke-dasharray="6 4"'
-          : "";
-      if (kind === "household" && p.strokeStyle === "dotted")
-        dash = ' stroke-dasharray="1 5" stroke-linecap="round"';
-      if (kind === "relation" && p.kind === "abuse_sexual")
-        paths += `<circle cx="${o.x}" cy="${o.y}" r="6"/>`;
-      const color =
-        kind === "household" && /^#[\da-f]{6}$/i.test(p.color)
-          ? p.color
-          : "#334155";
+      const dash = kind === "household" ? (p.strokeStyle === "dotted" ? ' stroke-dasharray="1 5" stroke-linecap="round"' : ' stroke-dasharray="6 4"') : "";
       return {
         svg: `<g fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"${dash}>${paths}</g><text x="${o.x}" y="${o.y - 8}" font-family="sans-serif" font-size="12">${xml(display(g.label))}</text>`,
       };
@@ -333,8 +352,14 @@ function make(kind, derive) {
           options: values.map((value) => ({
             value,
             label: labels[value] ?? value,
+            ...(kind === "relation" && field === "kind" ? { icon: relationshipIcons[value] } : {}),
           })),
         })),
+        ...(kind === "relation" ? [{
+          id: "relationship-floating", kind: "segmented", field: "kind", label: "정서 관계",
+          placement: "selection-bar", options: enumerations.relation.kind.map(value => ({ value, label: labels[value] ?? value, icon: relationshipIcons[value] })),
+        }] : []),
+        ...(kind === "relation" ? [{ kind: "color", field: "color", label: "관계선 색상", placement: "inspector" }] : []),
         ...(kind === "parentage"
           ? []
           : [

@@ -1,5 +1,6 @@
 import { icons } from "./icons.js";
 import { ids, prefix } from "./model.js";
+import { selectionBox } from "./aspects/person.js";
 /** Each active view owns handles and preview; the host owns the frame clock and input arbitration. */
 export function mountInteractions(context, run) {
   const provider = context.services.get("canvas.active-tool-surface"),
@@ -16,7 +17,21 @@ export function mountInteractions(context, run) {
       elements = [],
       handles = [],
       point = { x: 0, y: 0 },
-      screen = { x: 0, y: 0 };
+      screen = { x: 0, y: 0 },
+      bounds = { x: 0, y: 0, width: 0, height: 0, rotation: 0 },
+      hit = { id: "", priority: 0, distanceScreenPx: 0 };
+    let hoverX = 0, hoverY = 0, hovering = false;
+    const tooltip = document.createElement("div");
+    tooltip.setAttribute("role", "tooltip");
+    Object.assign(tooltip.style, {
+      position: "absolute", display: "none", pointerEvents: "none",
+      whiteSpace: "nowrap", padding: "5px 8px", borderRadius: "5px",
+      background: "var(--alid-bg-surface, #fff)", color: "var(--alid-text, #18181b)",
+      border: "1px solid var(--alid-border-subtle, #e4e4e7)",
+      boxShadow: "var(--alid-shadow, 0 1px 2px #0001)",
+      font: "12px/1.4 var(--alid-font, system-ui, sans-serif)",
+    });
+    s.surface.hud.append(tooltip);
     let gesture = null,
       composing = false,
       until = 0;
@@ -45,35 +60,23 @@ export function mountInteractions(context, run) {
       if (!id) return false;
       const p = world.getCanonical(id, ids.person);
       if (
-        kind === "move" ||
         kind.startsWith("add-") ||
         kind.includes("sibling")
       ) {
         if (!p) return false;
-        const b = world.getComputed(id, "computed.layoutBounds");
-        if (!b) return false;
-        const dx =
-            kind === "move"
-              ? b.width / 2
-              : kind === "older-sibling"
-                ? -18
-                : kind === "younger-sibling" || kind === "add-partner"
-                  ? b.width + 18
-                  : b.width / 2,
-          dy =
-            kind === "move"
-              ? -42
-              : kind === "add-parents"
-                ? -18
-                : kind === "add-child"
-                  ? b.height + 18
-                  : kind === "add-partner"
-                    ? 32
-                    : kind === "add-twin"
-                      ? b.height
-                      : 32;
-        out.x = b.x + dx;
-        out.y = b.y + dy;
+        const geometry = world.getComputed(id, `computed.${ids.person}`);
+        if (!geometry) return false;
+        selectionBox(p, geometry, bounds);
+        // The half-button and gap remain 8px and 4px in screen coordinates.
+        const offset = 12 / Math.max(0.01, s.host.getZoom());
+        out.x = kind === "add-partner"
+          ? bounds.x + bounds.width + offset
+          : bounds.x + bounds.width / 2;
+        out.y = kind === "add-parents"
+          ? bounds.y - offset
+          : kind === "add-child"
+            ? bounds.y + bounds.height + offset
+            : bounds.y + bounds.height / 2;
         return true;
       }
       const g = world.getComputed(id, `computed.${ids[kind]}`);
@@ -83,7 +86,6 @@ export function mountInteractions(context, run) {
       return true;
     }
     const kinds = [
-      "move",
       "add-partner",
       "add-child",
       "add-parents",
@@ -92,9 +94,11 @@ export function mountInteractions(context, run) {
       "relation",
     ];
     for (const kind of kinds) {
-      const el = document.createElement("button");
+      const isLineHandle = kind === "union" || kind === "parentage";
+      const el = isLineHandle
+        ? document.createElementNS("http://www.w3.org/2000/svg", "svg")
+        : document.createElement("button");
       const title = {
-        move: "세대·형제 간격 이동",
         "add-partner": "배우자 추가",
         "add-child": "자녀 추가",
         "add-parents": "부모 추가",
@@ -102,21 +106,28 @@ export function mountInteractions(context, run) {
         parentage: "자녀 분기 높이",
         relation: "정서선 곡률",
       }[kind];
-      const paths = icons[kind]?.paths;
-      if (paths)
-        el.innerHTML = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join("")}</svg>`;
+      const isAddButton = kind.startsWith("add-");
+      const isBlueHandle = isAddButton || isLineHandle;
+      const paths = isAddButton ? ["M10 4v12M4 10h12"] : icons[kind]?.paths;
+      if (isLineHandle) {
+        el.setAttribute("viewBox", "0 0 24 24");
+        el.setAttribute("aria-hidden", "true");
+        el.innerHTML = '<path d="M2 6H22 M2 18H22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+      } else if (paths)
+        el.innerHTML = `<svg viewBox="0 0 20 20" width="${isAddButton ? 12 : 14}" height="${isAddButton ? 12 : 14}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join("")}</svg>`;
       else el.textContent = "◆";
-      el.title = title;
+      if (!isLineHandle) el.title = title;
       el.setAttribute("aria-label", title);
       el.dataset.canvasUi = "true";
       Object.assign(el.style, {
         position: "absolute",
-        width: "22px",
-        height: "22px",
+        width: isLineHandle ? "24px" : isAddButton ? "16px" : "22px",
+        height: isLineHandle ? "24px" : isAddButton ? "16px" : "22px",
         padding: "0",
-        border: "1px solid #64748b",
-        borderRadius: "50%",
-        background: "white",
+        border: isBlueHandle ? "none" : "1px solid #64748b",
+        borderRadius: isBlueHandle ? "3px" : "50%",
+        background: isLineHandle ? "transparent" : isAddButton ? "var(--alid-accent, #008FF0)" : "white",
+        color: isLineHandle ? "var(--alid-accent, #008FF0)" : isAddButton ? "white" : "",
         pointerEvents: "none",
         display: "none",
       });
@@ -125,8 +136,10 @@ export function mountInteractions(context, run) {
       const handle = {
         id: `${prefix}:${kind}`,
         priority: 30,
-        shape: "circle",
+        shape: isBlueHandle ? "rect" : "circle",
         radiusScreenPx: 11,
+        widthScreenPx: isLineHandle ? 24 : isAddButton ? 16 : 22,
+        heightScreenPx: isLineHandle ? 24 : isAddButton ? 16 : 22,
         getWorldPosition: (out) => location(kind, out),
         onPointerDown(e) {
           if (
@@ -136,31 +149,11 @@ export function mountInteractions(context, run) {
             e.button !== 0
           )
             return false;
-          if (kind !== "move" && !(kind in ids)) {
+          if (!(kind in ids)) {
             run(kind);
             return true;
           }
           const id = target();
-          if (kind === "move") {
-            const base = world.getCanonical(id, "core.transform");
-            s.host.screenToWorld(e.clientX, e.clientY, point);
-            gesture = {
-              id,
-              kind,
-              baseX: base.x,
-              baseY: base.y,
-              startX: point.x,
-              startY: point.y,
-              startClientY: e.clientY,
-              startClientX: e.clientX,
-              pointer: e.pointerId,
-              x: base.x,
-              y: base.y,
-            };
-            s.selection.stateMachine.transition(key);
-            s.surface.element.setPointerCapture(e.pointerId);
-            return true;
-          }
           const field =
               kind === "union"
                 ? "barOffset"
@@ -187,38 +180,15 @@ export function mountInteractions(context, run) {
       off.push(s.selection.gizmos.register(handle));
       handles.push(handle);
     }
+    function clearAdjustmentCursor() {
+      if (s.surface.element.style.cursor === "ns-resize") s.surface.element.style.cursor = "";
+    }
     function move(e) {
+      hovering = !gesture && !e.buttons && e.pointerType !== "touch";
+      hoverX = e.clientX; hoverY = e.clientY;
+      s.host.requestRender();
       if (!gesture || e.pointerId !== gesture.pointer) return;
       s.host.screenToWorld(e.clientX, e.clientY, point);
-      if (gesture.kind === "move") {
-        let x = gesture.baseX + point.x - gesture.startX,
-          y = gesture.baseY + point.y - gesture.startY;
-        const threshold = 8 / Math.max(0.01, s.host.getZoom());
-        for (const other of world.listEntityIds()) {
-          if (other === gesture.id || !world.getCanonical(other, ids.person))
-            continue;
-          const t = world.getCanonical(other, "core.transform");
-          if (!t) continue;
-          for (let rail = -1; rail <= 1; rail++) {
-            const rx = t.x + rail * 110,
-              ry = t.y + rail * 240;
-            if (Math.abs(x - rx) < threshold) x = rx;
-            if (Math.abs(y - ry) < threshold) y = ry;
-          }
-        }
-        gesture.x = x;
-        gesture.y = y;
-        if (
-          Math.hypot(
-            e.clientX - gesture.startClientX,
-            e.clientY - gesture.startClientY,
-          ) < 3.5
-        )
-          return;
-        overlay.set(gesture.id, "core.transform", { x, y });
-        s.host.requestRender();
-        return;
-      }
       gesture.delta =
         (point.y - gesture.startY) / (gesture.kind === "parentage" ? 200 : 1);
       if (Math.abs(e.clientY - gesture.startClientY) < 3.5) return;
@@ -235,33 +205,6 @@ export function mountInteractions(context, run) {
       if (!gesture || e.pointerId !== gesture.pointer) return;
       const g = gesture;
       cancel();
-      if (g.kind === "move") {
-        if (
-          Math.hypot(e.clientX - g.startClientX, e.clientY - g.startClientY) <
-          3.5
-        )
-          return;
-        const current = world.getCanonical(g.id, "core.transform");
-        if (!current) return;
-        s.host.history.begin();
-        try {
-          world.applyCanonicalTransaction(`${prefix}:rail-move`, [
-            {
-              id: g.id,
-              aspect: "core.transform",
-              patch: {
-                x: current.x + g.x - g.baseX,
-                y: current.y + g.y - g.baseY,
-              },
-            },
-          ]);
-          s.host.history.commit();
-        } catch (err) {
-          s.host.history.abort();
-          throw err;
-        }
-        return;
-      }
       if (Math.abs(e.clientY - g.startClientY) < 3.5) return;
       const current = world.getCanonical(g.id, ids[g.kind]);
       if (!current) return;
@@ -298,6 +241,8 @@ export function mountInteractions(context, run) {
     }
     const events = {
       pointermove: move,
+      pointerleave: () => { hovering = false; tooltip.style.display = "none"; clearAdjustmentCursor(); },
+      pointerdown: () => { hovering = false; tooltip.style.display = "none"; },
       pointerup: up,
       pointercancel: cancel,
       lostpointercapture: cancel,
@@ -317,6 +262,19 @@ export function mountInteractions(context, run) {
     }
     off.push(
       frames.subscribe(() => {
+        const hasHit = hovering && s.selection.gizmos.hitTest(hoverX, hoverY, s.host.worldToScreen, hit);
+        if (hasHit && (hit.id === `${prefix}:union` || hit.id === `${prefix}:parentage`)) s.surface.element.style.cursor = "ns-resize";
+        else clearAdjustmentCursor();
+        const hovered = hasHit
+          ? kinds.findIndex(kind => kind.startsWith("add-") && `${prefix}:${kind}` === hit.id) : -1;
+        tooltip.style.display = hovered >= 0 ? "block" : "none";
+        if (hovered >= 0 && handles[hovered].getWorldPosition(point)) {
+          tooltip.textContent = elements[hovered].title;
+          s.host.worldToScreen(point.x, point.y, screen);
+          const rect = s.surface.hud.getBoundingClientRect();
+          tooltip.style.left = `${screen.x - rect.left + 16}px`;
+          tooltip.style.top = `${screen.y - rect.top + 14}px`;
+        } else tooltip.style.display = "none";
         for (let i = 0; i < handles.length; i++) {
           const el = elements[i];
           if (!handles[i].getWorldPosition(point)) {
@@ -326,15 +284,18 @@ export function mountInteractions(context, run) {
           s.host.worldToScreen(point.x, point.y, screen);
           el.style.display = "block";
           const rect = s.surface.hud.getBoundingClientRect();
-          el.style.left = `${screen.x - rect.left - 11}px`;
-          el.style.top = `${screen.y - rect.top - 11}px`;
+          const half = (kinds[i] === "union" || kinds[i] === "parentage") ? 12 : kinds[i].startsWith("add-") ? 8 : 11;
+          el.style.left = `${screen.x - rect.left - half}px`;
+          el.style.top = `${screen.y - rect.top - half}px`;
         }
       }),
     );
     clean = () => {
       cancel();
+      clearAdjustmentCursor();
       for (const f of off.reverse()) f();
       overlay.dispose();
+      tooltip.remove();
       for (const el of elements) el.remove();
     };
   }

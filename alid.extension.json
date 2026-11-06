@@ -70,7 +70,7 @@
   "title": "가계도",
   "summary": "상담용 인물 기호와 가족 관계를 작성합니다.",
   "entry": "dist/plugin.js",
-  "sha256": "c1acb7451d5c0aa1d6bb14f59df91a5669400893f3e7851c1ef05c88ea6f1f53",
+  "sha256": "54c6695f66943595e3697b70d2802862b5c747cad9e8356c4fc888d66266357d",
   "aspectIds": [
     "diagram.genogram.person",
     "diagram.genogram.union",

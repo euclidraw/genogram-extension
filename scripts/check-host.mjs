@@ -149,6 +149,18 @@ try {
   preview.set(personId, "core.transform", { x: 999999 });
   assert.equal(compiler.compileToPureSvg(world), svg);
   preview.dispose();
+  const unionId = world.listEntityIds().find(id => world.getCanonical(id, "diagram.genogram.union"));
+  const parentId = world.getCanonical(unionId, "diagram.genogram.union").partnerA;
+  world.applyCanonicalTransaction("test:label-clear", [{ id: parentId, aspect: "diagram.genogram.person", patch: { name: "", yearSpan: "", note: "" } }]);
+  const beforeLabel = world.getComputed(unionId, "computed.diagram.genogram.union");
+  world.applyCanonicalTransaction("test:label-edit", [{ id: parentId, aspect: "diagram.genogram.person", patch: { name: "가나다" } }]);
+  const commitsAfterEdit = commits;
+  const withLabel = world.getComputed(unionId, "computed.diagram.genogram.union");
+  assert.notDeepEqual(withLabel.paths, beforeLabel.paths, "label edits update the derived line gaps");
+  const saved = core.dump_canonical_jsonl();
+  assert.ok(compiler.compileToPureSvg(world).includes("가나다"));
+  assert.equal(core.dump_canonical_jsonl(), saved);
+  assert.equal(commits, commitsAfterEdit, "reading line geometry never commits");
   const parentageId = world
     .listEntityIds()
     .find((id) => world.getCanonical(id, "diagram.genogram.parentage"));

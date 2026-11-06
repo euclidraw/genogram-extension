@@ -1,4 +1,5 @@
 import { ids, prefix, lens } from "./model.js";
+import { labelExtent, noteLines } from "./aspects/person.js";
 /** Changes outside the locally edited span survive remote updates during composition. */
 export function mergeDraft(base, local, remote) {
   if (remote === base || local === remote) return local;
@@ -60,14 +61,27 @@ export function mountInlineEditor(context) {
     Object.assign(input.style, {
       position: "absolute",
       display: "none",
-      width: "180px",
-      height: "38px",
-      resize: "vertical",
+      boxSizing: "border-box",
+      resize: "none",
+      overflow: "hidden",
+      padding: "0",
+      border: "0",
+      outline: "none",
+      background: "transparent",
+      color: "#334155",
+      textAlign: "center",
+      whiteSpace: "pre",
+      transformOrigin: "top center",
       pointerEvents: "auto",
       zIndex: "20",
-      font: "14px sans-serif",
+      fontFamily: "sans-serif",
     });
     s.surface.hud.append(input);
+    let hidden = [];
+    function restoreText() {
+      for (const el of hidden) el.style.visibility = "";
+      hidden = [];
+    }
     function save() {
       if (!session || composing) return;
       const current = context.world.getCanonical(session.id, ids.person);
@@ -98,7 +112,9 @@ export function mountInlineEditor(context) {
       if (composing) return;
       if (commit) save();
       session = null;
+      restoreText();
       input.style.display = "none";
+      s.host.requestRender();
       textHistory?.seal();
     }
     close = () => {
@@ -127,6 +143,7 @@ export function mountInlineEditor(context) {
         }[field],
       );
       input.style.display = "block";
+      s.host.requestRender();
       input.focus();
       input.select();
     };
@@ -182,7 +199,7 @@ export function mountInlineEditor(context) {
         out.x < b.x ||
         out.x > b.x + b.width ||
         out.y < b.y ||
-        out.y > b.y + b.height
+        out.y > b.y + Math.max(b.height, labelExtent(p, b.width)?.bottom ?? b.height)
       )
         return;
       const y = out.y - b.y;
@@ -199,6 +216,7 @@ export function mountInlineEditor(context) {
           const p = context.world.getCanonical(session.id, ids.person);
           if (!p) {
             session = null;
+            restoreText();
             input.style.display = "none";
             return;
           }
@@ -216,13 +234,31 @@ export function mountInlineEditor(context) {
       if (!session) return;
       const b = context.world.getComputed(session.id, "computed.layoutBounds");
       if (!b) return;
-      const y = { ageLabel: 22, name: 66, yearSpan: 82, note: 98 }[
-        session.field
-      ];
-      s.host.worldToScreen(b.x + b.width / 2, b.y + y, worldPoint);
+      const y = { ageLabel: 24, name: 66, yearSpan: 82, note: 98 }[session.field];
+      const zoom = Math.max(0.01, s.host.getZoom());
+      const angle = b.rotation ?? 0, cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+      const dy = y - b.height / 2;
+      s.host.worldToScreen(cx - dy * Math.sin(angle), cy + dy * Math.cos(angle), worldPoint);
       const rect = s.surface.hud.getBoundingClientRect();
-      input.style.left = `${worldPoint.x - rect.left - 90}px`;
+      const isNote = session.field === "note";
+      input.style.width = `${Math.max(1, (isNote ? Math.max(12, b.width - 8) : b.width) * zoom)}px`;
+      input.style.height = `${(isNote ? noteLines(input.value, b.width).length * 16 : 16) * zoom}px`;
+      input.style.whiteSpace = isNote ? "pre-wrap" : "pre";
+      input.style.overflowWrap = isNote ? "anywhere" : "normal";
+      input.wrap = isNote ? "soft" : "off";
+      input.style.fontSize = `${12 * zoom}px`;
+      input.style.lineHeight = `${16 * zoom}px`;
+      input.style.left = `${worldPoint.x - rect.left}px`;
       input.style.top = `${worldPoint.y - rect.top}px`;
+      input.style.transform = `translateX(-50%) rotate(${angle}rad)`;
+      restoreText();
+      const fields = s.surface.element.querySelectorAll?.("[data-entity-id] [data-genogram-field]") ?? [];
+      for (const el of fields) {
+        if (el.getAttribute("data-genogram-field") === session.field && el.closest("[data-entity-id]")?.getAttribute("data-entity-id") === session.id) {
+          el.style.visibility = "hidden";
+          hidden.push(el);
+        }
+      }
     });
     detach = () => {
       offWorld();

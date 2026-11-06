@@ -41,6 +41,7 @@ function fixture() {
   globalThis.document = {
     activeElement: null,
     createElement: () => new Element(),
+    createElementNS: () => new Element(),
   };
   let selection = ["p"],
     paint,
@@ -71,8 +72,8 @@ function fixture() {
       if (a === ids.person) return values;
       if (a === "core.transform") return transform;
     },
-    getComputed() {
-      return { ...transform, width: 100, height: 120 };
+    getComputed(_id, aspect) {
+      if (aspect === "computed.layoutBounds" || aspect === `computed.${ids.person}`) return { ...transform, rotation: 0, width: 100, height: 120 };
     },
     listEntityIds: () => ["p", "other"],
     subscribe(fn) {
@@ -106,6 +107,19 @@ function fixture() {
       getSelection: () => selection,
       stateMachine,
       gizmos: {
+        hitTest(x, y, project, out) {
+          for (const h of handles.values()) {
+            const point = {}, screen = {};
+            if (h.getWorldPosition(point)) {
+              project(point.x, point.y, screen);
+              if (h.shape === "rect" ? Math.abs(x - screen.x) <= h.widthScreenPx / 2 && Math.abs(y - screen.y) <= h.heightScreenPx / 2 : Math.hypot(x - screen.x, y - screen.y) <= h.radiusScreenPx) {
+                out.id = h.id;
+                return true;
+              }
+            }
+          }
+          return false;
+        },
         register(h) {
           handles.set(h.id, h);
           return () => handles.delete(h.id);
@@ -158,6 +172,7 @@ function fixture() {
     context: { world, services },
     element,
     hud,
+    surface,
     values,
     transform,
     handles,
@@ -205,43 +220,128 @@ test("inline editor protects IME, merges remote text, uses document history and 
     f.restore();
   }
 });
-test("rail handle preview cancels without writes and commits one translation", () => {
+test("inline editing overlays the selected text transparently and restores it on close", () => {
   const f = fixture();
   try {
-    const dispose = mountInteractions(f.context, () => {}),
-      h = f.handles.get("diagram.genogram:move");
-    const down = () =>
-      h.onPointerDown(
-        event("pointerdown", {
-          clientX: 150,
-          clientY: 50,
-          pointerId: 1,
-          button: 0,
-        }),
-      );
-    down();
-    f.element.dispatchEvent(
-      event("pointermove", { clientX: 170, clientY: 80, pointerId: 1 }),
-    );
-    assert.equal(f.counts().commits, 0);
-    assert.ok(f.previews.length);
-    f.element.dispatchEvent(event("keydown", { key: "Escape" }));
-    assert.equal(f.previews.length, 0);
-    assert.equal(f.counts().commits, 0);
-    down();
-    f.element.dispatchEvent(
-      event("pointermove", { clientX: 170, clientY: 80, pointerId: 1 }),
-    );
-    f.element.dispatchEvent(
-      event("pointerup", { clientX: 170, clientY: 80, pointerId: 1 }),
-    );
-    assert.equal(f.counts().commits, 1);
-    assert.deepEqual(f.transform, { x: 20, y: 30 });
+    const text = { style: {}, getAttribute: () => "name", closest: () => ({ getAttribute: () => "p" }) };
+    f.element.querySelectorAll = () => [text];
+    f.surface.host.getZoom = () => 2;
+    const editor = mountInlineEditor(f.context);
+    editor.open("p", "name");
+    f.paint();
+    const input = f.hud.children[0];
+    assert.equal(input.style.background, "transparent");
+    assert.equal(input.style.border, "0");
+    assert.equal(input.style.fontSize, "24px");
+    assert.equal(text.style.visibility, "hidden");
+    input.dispatchEvent(event("blur"));
+    assert.equal(text.style.visibility, "");
+    editor.dispose();
+  } finally { f.restore(); }
+});
+test("clinical note editing wraps without squeezing or clipping the text", () => {
+  const f = fixture();
+  try {
+    const previous = lens.showNotes; lens.showNotes = true;
+    const editor = mountInlineEditor(f.context);
+    f.values.note = "가나다라마바사아자차카타파하";
+    editor.open("p", "note"); f.paint();
+    const input = f.hud.children[0];
+    assert.equal(input.style.whiteSpace, "pre-wrap");
+    assert.equal(input.style.overflowWrap, "anywhere");
+    assert.equal(input.style.height, "32px");
+    assert.equal(input.value, f.values.note);
+    editor.dispose(); lens.showNotes = previous;
+  } finally { f.restore(); }
+});
+test("person interactions do not register a separate move button", () => {
+  const f = fixture();
+  try {
+    const dispose = mountInteractions(f.context, () => {});
+    assert.equal(f.handles.has("diagram.genogram:move"), false);
+    assert.equal(f.handles.has("diagram.genogram:add-child"), true);
     dispose();
     assert.equal(f.handles.size, 0);
   } finally {
     f.restore();
   }
+});
+test("union adjustment handle shows larger blue lines on a transparent background", () => {
+  const f = fixture();
+  try {
+    const dispose = mountInteractions(f.context, () => {});
+    const button = f.hud.children[4], handle = f.handles.get("diagram.genogram:union");
+    assert.match(button.innerHTML, /M2 6H22 M2 18H22/);
+    assert.equal(button.style.background, "transparent");
+    assert.equal(button.style.color, "var(--alid-accent, #008FF0)");
+    assert.equal(button.style.width, "24px");
+    assert.equal(button.style.height, "24px");
+    assert.equal(button.style.border, "none");
+    assert.equal(handle.shape, "rect");
+    assert.equal(handle.widthScreenPx, 24);
+    f.surface.selection.gizmos.hitTest = (_x, _y, _project, hit) => { hit.id = "diagram.genogram:union"; return true; };
+    f.element.dispatchEvent(event("pointermove", { clientX: 100, clientY: 100, buttons: 0, pointerType: "mouse" }));
+    f.paint();
+    assert.equal(f.element.style.cursor, "ns-resize");
+    f.element.dispatchEvent(event("pointerleave"));
+    assert.equal(f.element.style.cursor, "");
+    dispose();
+  } finally { f.restore(); }
+});
+test("parent-child branch handle shows the vertical adjustment cursor", () => {
+  const f = fixture();
+  try {
+    const dispose = mountInteractions(f.context, () => {});
+    const button = f.hud.children[5], handle = f.handles.get("diagram.genogram:parentage");
+    assert.match(button.innerHTML, /M2 6H22 M2 18H22/);
+    assert.equal(button.style.width, "24px");
+    assert.equal(button.style.background, "transparent");
+    assert.equal(button.style.color, "var(--alid-accent, #008FF0)");
+    assert.equal(button.style.border, "none");
+    assert.equal(handle.shape, "rect");
+    assert.equal(handle.widthScreenPx, 24);
+    f.surface.selection.gizmos.hitTest = (_x, _y, _project, hit) => { hit.id = "diagram.genogram:parentage"; return true; };
+    f.element.dispatchEvent(event("pointermove", { clientX: 100, clientY: 100, buttons: 0, pointerType: "mouse" }));
+    f.paint();
+    assert.equal(f.element.style.cursor, "ns-resize");
+    f.element.dispatchEvent(event("pointerleave"));
+    assert.equal(f.element.style.cursor, "");
+    dispose();
+  } finally { f.restore(); }
+});
+test("addition gizmos show a plus and describe the hovered action", () => {
+  const f = fixture();
+  try {
+    const dispose = mountInteractions(f.context, () => {});
+    const tooltip = f.hud.children[0];
+    for (const [index, x, y, label] of [[1, 194, 103, "배우자 추가"], [2, 150, 164, "자녀 추가"], [3, 150, 38, "부모 추가"]]) {
+      assert.match(f.hud.children[index].innerHTML, /M10 4v12M4 10h12/);
+      f.element.dispatchEvent(event("pointermove", { clientX: x, clientY: y, buttons: 0, pointerType: "mouse" }));
+      f.paint();
+      assert.equal(tooltip.textContent, label);
+      assert.equal(tooltip.style.display, "block");
+    }
+    f.element.dispatchEvent(event("pointerleave"));
+    assert.equal(tooltip.style.display, "none");
+    dispose();
+    assert.equal(tooltip.removed, true);
+  } finally { f.restore(); }
+});
+test("addition gizmo offsets preserve the 4px screen gap at different zoom levels", () => {
+  const f = fixture();
+  try {
+    const dispose = mountInteractions(f.context, () => {}), point = {};
+    for (const zoom of [0.5, 1, 2]) {
+      f.surface.host.getZoom = () => zoom;
+      f.handles.get("diagram.genogram:add-parents").getWorldPosition(point);
+      assert.equal((0 - point.y) * zoom - 8, 4);
+      f.handles.get("diagram.genogram:add-partner").getWorldPosition(point);
+      assert.equal((point.x - 82) * zoom - 8, 4);
+      f.handles.get("diagram.genogram:add-child").getWorldPosition(point);
+      assert.equal((point.y - 102) * zoom - 8, 4);
+    }
+    dispose();
+  } finally { f.restore(); }
 });
 test("workspace preferences persist through activation without document writes", () => {
   const store = new Map(settingsSchema.map((f) => [f.key, f.defaultValue]));

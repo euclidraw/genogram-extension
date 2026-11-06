@@ -1,31 +1,31 @@
 // src/icons.js
-var icon = (...paths) => ({
+var icon$1 = (...paths) => ({
 	size: 20,
 	paths
 });
 var icons = {
-	move: icon("M10 2v16M2 10h16M7 5l3-3 3 3M7 15l3 3 3-3M5 7l-3 3 3 3M15 7l3 3-3 3"),
-	"add-person": icon("M7 5a3 3 0 1 0 6 0a3 3 0 1 0-6 0M4 18v-3a6 6 0 0 1 12 0v3", "M15 6h5M17.5 3.5v5"),
-	"edit-person": icon("M4 14 14 4l3 3L7 17H4zM12 6l3 3"),
-	"older-sibling": icon("M8 6 4 10l4 4M4 10h12M12 5v10"),
-	"younger-sibling": icon("M12 6l4 4-4 4M16 10H4M8 5v10"),
-	"add-partner": icon("M2 4h5v5H2zM13 6a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M4.5 11v4h11v-4M10 15v4"),
-	"add-child": icon("M3 3h5v5H3zM12 3h5v5h-5zM5.5 8v3h9V8M10 11v4M7.5 15h5v4h-5z"),
-	"add-parents": icon("M3 3h5v5H3zM12 3h5v5h-5zM5.5 8v3h9V8M10 11v5M7 15l3 3 3-3"),
-	"add-twin": icon("M10 2v5M10 7 4 14M10 7l6 7M2 14h4v4H2zM14 14h4v4h-4z"),
-	"connect-union": icon("M2 3h5v5H2zM13 3h5v5h-5zM4.5 9v6h11V9"),
-	"connect-parentage": icon("M3 2h5v5H3zM12 2h5v5h-5zM5.5 8v3h9V8M10 11v4M8 15h4v4H8z"),
-	"connect-twins": icon("M10 2v5M10 7 4 14M10 7l6 7M4 11h12"),
-	"connect-relation": icon("M2 10h3l2-5 3 10 3-10 2 5h3"),
-	reverse: icon("M3 6h14l-4-4M17 14H3l4 4"),
-	household: icon("M2 10 10 3l8 7M4 9v9h12V9M8 18v-6h4v6"),
-	"toggle-membership": icon("M2 10 10 3l8 7M4 9v9h8M14 15h6M17 12v6"),
-	"tidy-layout": icon("M2 4h16M2 10h16M2 16h16M5 2v4M10 8v4M15 14v4"),
-	privacy: icon("M2 10q8-12 16 0q-8 12-16 0M8 10a2 2 0 1 0 4 0a2 2 0 1 0-4 0"),
-	"mask-years": icon("M3 4h14v14H3zM3 8h14M6 2v4M14 2v4M6 12h8M6 15h4"),
-	"show-relations": icon("M2 10h4l2-5 4 10 2-5h4"),
-	"show-households": icon("M2 10 10 3l8 7M4 9v9h12V9"),
-	"show-notes": icon("M4 2h12v16H4zM7 6h6M7 10h6M7 14h4")
+	move: icon$1("M10 2v16M2 10h16M7 5l3-3 3 3M7 15l3 3 3-3M5 7l-3 3 3 3M15 7l3 3-3 3"),
+	"add-person": icon$1("M7 5a3 3 0 1 0 6 0a3 3 0 1 0-6 0M4 18v-3a6 6 0 0 1 12 0v3", "M15 6h5M17.5 3.5v5"),
+	"edit-person": icon$1("M4 14 14 4l3 3L7 17H4zM12 6l3 3"),
+	"older-sibling": icon$1("M8 6 4 10l4 4M4 10h12M12 5v10"),
+	"younger-sibling": icon$1("M12 6l4 4-4 4M16 10H4M8 5v10"),
+	"add-partner": icon$1("M2 4h5v5H2zM13 6a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M4.5 11v4h11v-4M10 15v4"),
+	"add-child": icon$1("M3 3h5v5H3zM12 3h5v5h-5zM5.5 8v3h9V8M10 11v4M7.5 15h5v4h-5z"),
+	"add-parents": icon$1("M3 3h5v5H3zM12 3h5v5h-5zM5.5 8v3h9V8M10 11v5M7 15l3 3 3-3"),
+	"add-twin": icon$1("M10 2v5M10 7 4 14M10 7l6 7M2 14h4v4H2zM14 14h4v4h-4z"),
+	"connect-union": icon$1("M2 3h5v5H2zM13 3h5v5h-5zM4.5 9v6h11V9"),
+	"connect-parentage": icon$1("M3 2h5v5H3zM12 2h5v5h-5zM5.5 8v3h9V8M10 11v4M8 15h4v4H8z"),
+	"connect-twins": icon$1("M10 2v5M10 7 4 14M10 7l6 7M4 11h12"),
+	"connect-relation": icon$1("M2 10h3l2-5 3 10 3-10 2 5h3"),
+	reverse: icon$1("M3 6h14l-4-4M17 14H3l4 4"),
+	household: icon$1("M2 10 10 3l8 7M4 9v9h12V9M8 18v-6h4v6"),
+	"toggle-membership": icon$1("M2 10 10 3l8 7M4 9v9h8M14 15h6M17 12v6"),
+	"tidy-layout": icon$1("M2 4h16M2 10h16M2 16h16M5 2v4M10 8v4M15 14v4"),
+	privacy: icon$1("M2 10q8-12 16 0q-8 12-16 0M8 10a2 2 0 1 0 4 0a2 2 0 1 0-4 0"),
+	"mask-years": icon$1("M3 4h14v14H3zM3 8h14M6 2v4M14 2v4M6 12h8M6 15h4"),
+	"show-relations": icon$1("M2 10h4l2-5 4 10 2-5h4"),
+	"show-households": icon$1("M2 10 10 3l8 7M4 9v9h12V9"),
+	"show-notes": icon$1("M4 2h12v16H4zM7 6h6M7 10h6M7 14h4")
 };
 for (const name of [
 	"template-nuclear",
@@ -56,6 +56,9 @@ var defaults = {
 		lifeStatus: "alive",
 		isIndexPerson: false,
 		clinical: "none",
+		smoking: false,
+		obesity: false,
+		languageDifficulty: false,
 		name: "",
 		ageLabel: "",
 		yearSpan: "",
@@ -85,6 +88,7 @@ var defaults = {
 		to: null,
 		kind: "close",
 		curveOffset: 0,
+		color: "#dc2626",
 		label: ""
 	},
 	household: {
@@ -216,6 +220,542 @@ function bindPreferences(context) {
 		}
 	};
 }
+// src/ui-labels.js
+var labels$1 = {
+	symbol: "인물 기호",
+	orientation: "성적 지향 표시",
+	clinical: "임상 상태",
+	lifeStatus: "생존 상태",
+	status: "결합 상태",
+	pedigree: "자녀 관계",
+	twinType: "쌍둥이",
+	kind: "정서 관계",
+	strokeStyle: "테두리",
+	male: "남성",
+	female: "여성",
+	unknown: "미상",
+	trans_male: "트랜스 남성",
+	trans_female: "트랜스 여성",
+	nonbinary: "논바이너리",
+	pregnancy: "임신",
+	miscarriage: "자연유산",
+	abortion: "인공유산",
+	stillbirth_male: "사산 남",
+	stillbirth_female: "사산 여",
+	pet: "반려동물",
+	none: "없음",
+	gay: "동성애 남성",
+	lesbian: "동성애 여성",
+	bisexual: "양성애",
+	physical: "신체 질환",
+	mental: "정신 건강",
+	substance: "약물·알코올 남용",
+	suspected_substance: "약물·알코올 남용 의심",
+	recovery_with_illness: "질환 및 물질 사용 회복",
+	smoking: "흡연",
+	obesity: "비만",
+	languageDifficulty: "언어 문제",
+	mental_substance: "심각한 정신·신체 문제 및 물질 사용",
+	recovering: "회복 중 (유형 미지정)",
+	substance_recovery: "물질 사용 회복 중",
+	illness_remission: "신체·정신 질환 관해",
+	alive: "생존",
+	deceased: "사망",
+	marriage: "혼인",
+	engagement: "약혼",
+	cohabitation: "동거",
+	separation: "별거",
+	divorce: "이혼",
+	reunion_divorce: "이혼 후 재결합",
+	reunion_separation: "별거 후 재결합",
+	secret_affair: "비공식 관계",
+	biological: "친생",
+	adopted: "입양",
+	foster: "위탁",
+	surrogate: "대리 출생",
+	fraternal: "이란성",
+	identical: "일란성",
+	close: "친밀",
+	fused: "융합",
+	distant: "소원",
+	hostile: "갈등",
+	fused_hostile: "융합·갈등",
+	close_hostile: "친밀·갈등",
+	negative_focused: "부정적 관계집중",
+	caregiving: "돌봄",
+	cutoff: "단절",
+	cutoff_repaired: "단절 후 회복",
+	estranged: "거리·단절",
+	focused_on: "집중",
+	abuse_physical: "신체 학대",
+	abuse_emotional: "정서 학대",
+	abuse_sexual: "성적 학대",
+	dashed: "파선",
+	dotted: "점선",
+	name: "이름",
+	ageLabel: "나이",
+	yearSpan: "출생·사망 연도",
+	note: "임상 메모"
+};
+// src/aspects/person.js
+var symbols = [
+	"male",
+	"female",
+	"unknown",
+	"trans_male",
+	"trans_female",
+	"nonbinary",
+	"pregnancy",
+	"miscarriage",
+	"abortion",
+	"stillbirth_male",
+	"stillbirth_female",
+	"pet"
+];
+/** Symbol box in the person's local frame; every symbol is drawn inside it. */
+var SYMBOL = {
+	top: 6,
+	bottom: 58,
+	half: 26
+};
+/** Half-size of a death cross; stillbirth symbols retain their smaller cross. */
+function deathMarkSpan(p) {
+	if (p.lifeStatus !== "deceased" && !String(p.symbol ?? "").startsWith("stillbirth")) return 0;
+	return String(p.symbol ?? "").startsWith("stillbirth") ? 22 : p.isIndexPerson ? 35 : 32;
+}
+var graphemeSegmenter = typeof Intl.Segmenter === "function" ? new Intl.Segmenter(void 0, { granularity: "grapheme" }) : null;
+/** Wrap notes conservatively without scaling glyphs or changing the saved text. */
+function noteLines(value, width = 120) {
+	const limit = Math.max(1, Math.floor(Math.max(12, width - 8) / 12)), output = [];
+	for (const paragraph of String(value ?? "").split("\n")) {
+		const chars = graphemeSegmenter ? Array.from(graphemeSegmenter.segment(paragraph), (part) => part.segment) : Array.from(paragraph);
+		if (!chars.length) output.push("");
+		for (let i = 0; i < chars.length;) {
+			let end = Math.min(chars.length, i + limit);
+			if (end < chars.length) {
+				for (let j = end - 1; j > i; j--) if (/\s/u.test(chars[j])) {
+					end = j + 1;
+					break;
+				}
+			}
+			output.push(chars.slice(i, end).join(""));
+			i = end;
+		}
+	}
+	return output;
+}
+/** Baselines of the visible text rows drawn below the symbol. */
+function labelRows(p, width = 120) {
+	const rows = [];
+	if (display(p.name, "name")) rows.push([
+		display(p.name, "name"),
+		78,
+		"name"
+	]);
+	if (display(p.yearSpan)) rows.push([
+		display(p.yearSpan),
+		94,
+		"yearSpan"
+	]);
+	if (lens.showNotes) noteLines(display(p.note), width).forEach((line, i) => {
+		if (line.trim()) rows.push([
+			line,
+			110 + i * 16,
+			"note"
+		]);
+	});
+	return rows;
+}
+/** Vertical extent of the label block below the symbol, in local units, or undefined when empty. */
+function labelExtent(p, width = 120) {
+	const rows = labelRows(p, width);
+	if (!rows.length) return;
+	return {
+		top: Math.min(...rows.map(([, y]) => y)) - 12,
+		bottom: Math.max(...rows.map(([, y]) => y)) + 4,
+		width: Math.max(...rows.map(([v]) => Array.from(String(v)).length * 12))
+	};
+}
+function localToWorld(g, x, y, out) {
+	const cx = g.width / 2, cy = g.height / 2, c = Math.cos(g.rotation), s = Math.sin(g.rotation);
+	out.x = g.x + cx + (x - cx) * c - (y - cy) * s;
+	out.y = g.y + cy + (x - cx) * s + (y - cy) * c;
+	return out;
+}
+/** Tight world box around the symbol and its visible labels. */
+function selectionBox(p, g, out) {
+	const cx = g.width / 2, extent = labelExtent(p, g.width), death = deathMarkSpan(p), half = Math.max(SYMBOL.half + 6, death ? death + 2 : 0, extent ? Math.min(g.width / 2, extent.width / 2 + 4) : 0), top = Math.min(SYMBOL.top - 6, death ? 32 - death - 2 : 0), bottom = Math.max(SYMBOL.bottom + 6, death ? 32 + death + 2 : 0, extent ? extent.bottom + 4 : 0);
+	let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+	const pt = {
+		x: 0,
+		y: 0
+	};
+	for (const [x, y] of [
+		[cx - half, top],
+		[cx + half, top],
+		[cx + half, bottom],
+		[cx - half, bottom]
+	]) {
+		localToWorld(g, x, y, pt);
+		minX = Math.min(minX, pt.x);
+		minY = Math.min(minY, pt.y);
+		maxX = Math.max(maxX, pt.x);
+		maxY = Math.max(maxY, pt.y);
+	}
+	out.x = minX;
+	out.y = minY;
+	out.width = maxX - minX;
+	out.height = maxY - minY;
+	out.rotation = 0;
+	return out;
+}
+/** Outline of the symbol, slightly enlarged, as local points. */
+function symbolOutline(p, g) {
+	const cx = g.width / 2, cy = 32, pad = 4;
+	const ring = (r) => Array.from({ length: 33 }, (_, i) => [cx + r * Math.cos(i / 32 * 2 * Math.PI), cy + r * Math.sin(i / 32 * 2 * Math.PI)]);
+	const square = (r) => [
+		[cx - r, cy - r],
+		[cx + r, cy - r],
+		[cx + r, cy + r],
+		[cx - r, cy + r],
+		[cx - r, cy - r]
+	];
+	switch (p.symbol) {
+		case "female":
+		case "trans_female": return ring(30);
+		case "male":
+		case "trans_male": return square(30);
+		case "stillbirth_female": return ring(19);
+		case "stillbirth_male": return square(19);
+		case "miscarriage":
+		case "abortion": return ring(17);
+		case "pregnancy": return [
+			[cx, 2],
+			[cx + 30, 55],
+			[cx - 30, 55],
+			[cx, 2]
+		];
+		case "pet": return [
+			[cx - 27, 6],
+			[cx + 27, 6],
+			[cx + 27, 39],
+			[cx, 62],
+			[cx - 27, 39],
+			[cx - 27, 6]
+		];
+		default: {
+			const r = 26 + pad * Math.SQRT2;
+			return [
+				[cx, cy - r],
+				[cx + r, cy],
+				[cx, cy + r],
+				[cx - r, cy],
+				[cx, cy - r]
+			];
+		}
+	}
+}
+var scratch = {
+	x: 0,
+	y: 0
+};
+var box = {
+	x: 0,
+	y: 0,
+	width: 0,
+	height: 0,
+	rotation: 0
+};
+function read(id, v) {
+	const p = v.getCanonical(id, ids.person), g = p && v.getComputed(id, `computed.${ids.person}`);
+	return g ? [p, g] : [];
+}
+var selection = {
+	priority: 20,
+	getBounds(id, v, out) {
+		const [p, g] = read(id, v);
+		if (!g) return false;
+		selectionBox(p, g, out);
+		return true;
+	},
+	hitTest(id, v, x, y, zoom) {
+		const [p, g] = read(id, v);
+		if (!g) return Infinity;
+		selectionBox(p, g, box);
+		const dx = Math.max(box.x - x, 0, x - box.x - box.width), dy = Math.max(box.y - y, 0, y - box.y - box.height), d = Math.hypot(dx, dy);
+		return d <= 4 / Math.max(.01, zoom) ? d : Infinity;
+	},
+	intersectsRect(id, v, l, t, r, b) {
+		const [p, g] = read(id, v);
+		if (!g) return false;
+		selectionBox(p, g, box);
+		return box.x <= r && box.x + box.width >= l && box.y <= b && box.y + box.height >= t;
+	},
+	getOutlinePath(id, v, projection) {
+		const [p, g] = read(id, v);
+		if (!g) return "";
+		return symbolOutline(p, g).map(([x, y], i) => {
+			localToWorld(g, x, y, scratch);
+			projection.worldToScreen(scratch.x, scratch.y, scratch);
+			return `${i ? "L" : "M"}${scratch.x},${scratch.y}`;
+		}).join("");
+	},
+	canTransform: () => true,
+	canResize: () => false,
+	canRotate: () => false
+};
+var options = (field, values, label) => ({
+	kind: "segmented",
+	field,
+	label,
+	placement: "inspector",
+	options: values.map((value) => ({
+		value,
+		label: labels$1[value] ?? value
+	}))
+});
+function body(p, g, id = "preview") {
+	const cx = g.width / 2, cy = 32;
+	let s = "";
+	const circle = (r) => `<circle cx="${cx}" cy="${cy}" r="${r}"/>`, rect = (r) => `<rect x="${cx - r}" y="${cy - r}" width="${r * 2}" height="${r * 2}"/>`, diamond = `<path d="M ${cx} 6 l 26 26 -26 26 -26 -26 Z"/>`;
+	switch (p.symbol) {
+		case "female":
+			s = circle(26);
+			break;
+		case "male":
+			s = rect(26);
+			break;
+		case "trans_male":
+			s = rect(26) + circle(18);
+			break;
+		case "trans_female":
+			s = circle(26) + rect(18);
+			break;
+		case "pregnancy":
+			s = `<path d="M ${cx} 8 l 25 44 h -50 Z"/>`;
+			break;
+		case "miscarriage":
+			s = `<circle cx="${cx}" cy="32" r="9" fill="#334155"/>`;
+			break;
+		case "abortion":
+			s = `<path d="M ${cx - 9} 23 l 18 18 m 0 -18 l -18 18"/>`;
+			break;
+		case "stillbirth_male":
+			s = rect(15);
+			break;
+		case "stillbirth_female":
+			s = circle(15);
+			break;
+		case "pet":
+			s = `<path d="M ${cx - 23} 10 h 46 v 27 l -23 20 -23 -20 Z"/>`;
+			break;
+		case "nonbinary":
+			s = diamond + circle(16);
+			break;
+		default: s = diamond;
+	}
+	const clipId = `genogram-clinical-${Array.from(String(id), (c) => c.codePointAt(0).toString(16)).join("-")}`;
+	const clinical = p.clinical;
+	const hasFill = [
+		"physical",
+		"mental",
+		"substance",
+		"mental_substance",
+		"substance_recovery",
+		"illness_remission",
+		"suspected_substance",
+		"recovery_with_illness"
+	].includes(clinical);
+	let marks = "";
+	if (hasFill || p.smoking || p.obesity || p.languageDifficulty) {
+		const bottomClip = `${clipId}-lower`;
+		marks += `<defs><clipPath id="${clipId}">${s}</clipPath><clipPath id="${bottomClip}"><rect x="${cx - 26}" y="32" width="52" height="26"/></clipPath></defs>`;
+		let fill = "";
+		if (clinical === "physical") fill = `<rect x="${cx}" y="6" width="26" height="52"/>`;
+		else if (clinical === "mental") fill = `<rect x="${cx - 26}" y="6" width="26" height="52"/>`;
+		else if (clinical === "substance") fill = `<rect x="${cx - 26}" y="32" width="52" height="26"/>`;
+		else if (clinical === "mental_substance") fill = `<path d="M ${cx - 26} 6 h 26 v 26 h 26 v 26 h -52 Z" fill="#94a3b8"/><path d="M ${cx} 6 v 52 M ${cx - 26} 32 h 52" fill="none" stroke="#334155" stroke-width="2"/>`;
+		else if ([
+			"substance_recovery",
+			"illness_remission",
+			"recovery_with_illness"
+		].includes(clinical)) {
+			fill = `<rect x="${cx - 26}" y="32" width="26" height="26"/>`;
+			if (clinical === "recovery_with_illness") fill += `<rect x="${cx}" y="6" width="26" height="26" fill="#cbd5e1"/>`;
+			if (clinical !== "illness_remission") fill += `<path d="M ${cx} 32 h 26" fill="none" stroke="#334155" stroke-width="2"/>`;
+			if (clinical !== "substance_recovery") fill += `<path d="M ${cx} 6 v 26" fill="none" stroke="#334155" stroke-width="2"/>`;
+		} else if (clinical === "suspected_substance") {
+			let hatch = "";
+			for (let x = cx - 52; x < cx + 52; x += 7) hatch += `<path d="M ${x} 58 l 26 -26"/>`;
+			fill = `<g clip-path="url(#${bottomClip})" fill="none" stroke="#334155" stroke-width="2">${hatch}</g><path d="M ${cx - 26} 32 h 52" fill="none" stroke="#334155" stroke-width="2"/>`;
+		}
+		if (p.languageDifficulty) {
+			let hatch = "";
+			for (let x = cx - 52; x < cx + 52; x += 7) hatch += `<path d="M ${x} 58 l 26 -26"/>`;
+			fill += `<g clip-path="url(#${bottomClip})" fill="none"><g stroke="white" stroke-width="4">${hatch}</g><g stroke="#334155" stroke-width="2">${hatch}</g></g>`;
+		}
+		if (p.obesity) fill += `<circle cx="${cx}" cy="32" r="16" fill="none" stroke="white" stroke-width="6"/><circle cx="${cx}" cy="32" r="16" fill="none" stroke="#334155" stroke-width="4"/>`;
+		if (p.smoking) fill += `<circle cx="${cx + 18}" cy="14" r="4" fill="#334155" stroke="white" stroke-width="1"/>`;
+		marks += `<g clip-path="url(#${clipId})" fill="#334155">${fill}</g>`;
+	}
+	if (clinical === "recovering") marks += `<text x="${cx}" y="53" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#334155">R</text>`;
+	if (p.orientation !== "none") marks += `<path d="M ${cx - 12} 18 h 24 l -12 20 Z" fill="none" stroke="#334155"/>`;
+	if (p.isIndexPerson) marks += `<g transform="translate(${cx},32) scale(1.15) translate(${-cx},-32)" fill="none" stroke="#334155">${s}</g>`;
+	const death = deathMarkSpan(p);
+	if (death) marks += `<path data-genogram-death="true" d="M ${cx - death} ${32 - death} l ${death * 2} ${death * 2} m 0 -${death * 2} l -${death * 2} ${death * 2}" stroke="#334155" stroke-width="2" fill="none"/>`;
+	const texts = [[
+		p.ageLabel,
+		36,
+		"ageLabel"
+	], ...labelRows(p, g.width)];
+	return `<g fill="white" stroke="#334155" stroke-width="2">${s}</g>${marks}<g text-anchor="middle" fill="#334155" font-family="sans-serif" font-size="12" stroke="white" stroke-width="2" stroke-linejoin="round" paint-order="stroke fill">${texts.map(([v, y, field]) => `<text data-genogram-field="${field}" x="${cx}" y="${y}"${field !== "note" && Array.from(String(v ?? "")).length * 12 > g.width - 8 ? ` textLength="${Math.max(1, g.width - 8)}" lengthAdjust="spacingAndGlyphs"` : ""}>${escapeXml(v)}</text>`).join("")}</g>`;
+}
+var person = {
+	id: ids.person,
+	label: "인물",
+	defaults: defaults.person,
+	refs: { householdId: "nullify" },
+	textFields: [
+		"name",
+		"ageLabel",
+		"yearSpan",
+		"note"
+	],
+	textSearchFields: [
+		"name",
+		"yearSpan",
+		"note"
+	],
+	dependsOnCanonical: [
+		ids.person,
+		"core.transform",
+		"core.bounds"
+	],
+	derive(p, id, v) {
+		const t = v.getCanonical(id, "core.transform") ?? {}, b = v.getCanonical(id, "core.bounds") ?? {};
+		const width = b.width > 0 ? b.width : 120;
+		return {
+			x: finite(t.x),
+			y: finite(t.y),
+			rotation: finite(t.rotation),
+			labelHeight: 110 + 16 * (noteLines(display(p.note), width).length - 1),
+			deathMarkSpan: deathMarkSpan(p),
+			width,
+			height: b.height > 0 ? b.height : 120
+		};
+	},
+	paintOverflow: 32,
+	selection,
+	paintBounds(g) {
+		if (!g) return;
+		const h = Math.max(g.height, g.labelHeight + 8), a = g.rotation, c = Math.cos(a), s = Math.sin(a), cx = g.x + g.width / 2, cy = g.y + g.height / 2;
+		const span = g.deathMarkSpan ?? 0, left = Math.min(0, span ? g.width / 2 - span - 1 : 0), right = Math.max(g.width, span ? g.width / 2 + span + 1 : g.width), top = Math.min(0, span ? 32 - span - 1 : 0), bottom = Math.max(h, span ? 32 + span + 1 : h);
+		const points = [
+			[left, top],
+			[right, top],
+			[right, bottom],
+			[left, bottom]
+		].map(([x, y]) => ({
+			x: cx + (x - g.width / 2) * c - (y - g.height / 2) * s,
+			y: cy + (x - g.width / 2) * s + (y - g.height / 2) * c
+		}));
+		const x = Math.min(...points.map((p) => p.x)), y = Math.min(...points.map((p) => p.y));
+		return {
+			x,
+			y,
+			width: Math.max(...points.map((p) => p.x)) - x,
+			height: Math.max(...points.map((p) => p.y)) - y
+		};
+	},
+	renderSvg(p, g, id) {
+		return { svg: g ? `<g transform="translate(${g.x},${g.y}) rotate(${g.rotation * 180 / Math.PI},${g.width / 2},${g.height / 2})">${body(p, g, id)}</g>` : "" };
+	},
+	ui: { controls: [
+		...[
+			"name",
+			"ageLabel",
+			"yearSpan"
+		].map((field) => ({
+			kind: "text",
+			field,
+			label: labels$1[field] ?? field,
+			placement: "inspector",
+			section: "기본 정보"
+		})),
+		{
+			...options("symbol", symbols, "인물 기호"),
+			section: "기호와 상태"
+		},
+		{
+			...options("symbol", symbols, "인물 기호"),
+			id: "symbol-floating",
+			placement: "selection-bar"
+		},
+		{
+			...options("orientation", [
+				"none",
+				"gay",
+				"lesbian",
+				"bisexual"
+			], "성적 지향 표시"),
+			section: "기호와 상태"
+		},
+		{
+			...options("clinical", [
+				"none",
+				"physical",
+				"mental",
+				"substance",
+				"mental_substance",
+				"recovering",
+				"substance_recovery",
+				"illness_remission",
+				"suspected_substance",
+				"recovery_with_illness"
+			], "임상 상태"),
+			section: "기호와 상태",
+			description: "오른쪽 음영: 신체 질환 · 아래 음영: 물질 사용 · 아래 사선: 물질 사용 의심. 왼쪽 아래 음영에 가로선은 물질 사용 회복, 세로선은 질환 관해입니다. R은 기존 회복 기록의 유형 미지정입니다."
+		},
+		...[
+			"smoking",
+			"obesity",
+			"languageDifficulty"
+		].map((field) => ({
+			kind: "toggle",
+			field,
+			label: labels$1[field],
+			placement: "inspector",
+			section: "추가 임상 표시",
+			sectionCollapsed: true
+		})),
+		{
+			...options("lifeStatus", ["alive", "deceased"], "생존"),
+			section: "기호와 상태"
+		},
+		{
+			kind: "text",
+			field: "note",
+			label: labels$1.note,
+			placement: "inspector",
+			section: "상담 메모",
+			sectionCollapsed: true
+		},
+		{
+			kind: "number",
+			field: "birthOrderHint",
+			label: "형제 순서",
+			placement: "inspector",
+			section: "기본 정보"
+		},
+		{
+			kind: "toggle",
+			field: "isIndexPerson",
+			label: "내담자",
+			placement: "inspector",
+			section: "기호와 상태"
+		}
+	] }
+};
 // src/inline-editor.js
 /** Changes outside the locally edited span survive remote updates during composition. */
 function mergeDraft(base, local, remote) {
@@ -249,14 +789,27 @@ function mountInlineEditor(context) {
 		Object.assign(input.style, {
 			position: "absolute",
 			display: "none",
-			width: "180px",
-			height: "38px",
-			resize: "vertical",
+			boxSizing: "border-box",
+			resize: "none",
+			overflow: "hidden",
+			padding: "0",
+			border: "0",
+			outline: "none",
+			background: "transparent",
+			color: "#334155",
+			textAlign: "center",
+			whiteSpace: "pre",
+			transformOrigin: "top center",
 			pointerEvents: "auto",
 			zIndex: "20",
-			font: "14px sans-serif"
+			fontFamily: "sans-serif"
 		});
 		s.surface.hud.append(input);
+		let hidden = [];
+		function restoreText() {
+			for (const el of hidden) el.style.visibility = "";
+			hidden = [];
+		}
 		function save() {
 			if (!session || composing) return;
 			const current = context.world.getCanonical(session.id, ids.person);
@@ -281,7 +834,9 @@ function mountInlineEditor(context) {
 			if (composing) return;
 			if (commit) save();
 			session = null;
+			restoreText();
 			input.style.display = "none";
+			s.host.requestRender();
 			textHistory?.seal();
 		}
 		close = () => {
@@ -307,6 +862,7 @@ function mountInlineEditor(context) {
 				note: "임상 메모"
 			}[field]);
 			input.style.display = "block";
+			s.host.requestRender();
 			input.focus();
 			input.select();
 		};
@@ -345,14 +901,14 @@ function mountInlineEditor(context) {
 			if (locked(e) || e.target?.closest?.("input,textarea,button,[contenteditable]")) return;
 			const selected = s.selection.getSelection();
 			if (selected.length !== 1) return;
-			const id = selected[0];
-			if (!context.world.getCanonical(id, ids.person)) return;
+			const id = selected[0], p = context.world.getCanonical(id, ids.person);
+			if (!p) return;
 			const b = context.world.getComputed(id, "computed.layoutBounds"), out = {
 				x: 0,
 				y: 0
 			};
 			s.host.screenToWorld(e.clientX, e.clientY, out);
-			if (!b || out.x < b.x || out.x > b.x + b.width || out.y < b.y || out.y > b.y + b.height) return;
+			if (!b || out.x < b.x || out.x > b.x + b.width || out.y < b.y || out.y > b.y + Math.max(b.height, labelExtent(p, b.width)?.bottom ?? b.height)) return;
 			const y = out.y - b.y;
 			openCurrent(id, y < 60 ? "ageLabel" : y < 85 ? "name" : y < 101 ? "yearSpan" : "note");
 			e.preventDefault();
@@ -363,6 +919,7 @@ function mountInlineEditor(context) {
 				const p = context.world.getCanonical(session.id, ids.person);
 				if (!p) {
 					session = null;
+					restoreText();
 					input.style.display = "none";
 					return;
 				}
@@ -380,15 +937,33 @@ function mountInlineEditor(context) {
 			const b = context.world.getComputed(session.id, "computed.layoutBounds");
 			if (!b) return;
 			const y = {
-				ageLabel: 22,
+				ageLabel: 24,
 				name: 66,
 				yearSpan: 82,
 				note: 98
 			}[session.field];
-			s.host.worldToScreen(b.x + b.width / 2, b.y + y, worldPoint);
+			const zoom = Math.max(.01, s.host.getZoom());
+			const angle = b.rotation ?? 0, cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+			const dy = y - b.height / 2;
+			s.host.worldToScreen(cx - dy * Math.sin(angle), cy + dy * Math.cos(angle), worldPoint);
 			const rect = s.surface.hud.getBoundingClientRect();
-			input.style.left = `${worldPoint.x - rect.left - 90}px`;
+			const isNote = session.field === "note";
+			input.style.width = `${Math.max(1, (isNote ? Math.max(12, b.width - 8) : b.width) * zoom)}px`;
+			input.style.height = `${(isNote ? noteLines(input.value, b.width).length * 16 : 16) * zoom}px`;
+			input.style.whiteSpace = isNote ? "pre-wrap" : "pre";
+			input.style.overflowWrap = isNote ? "anywhere" : "normal";
+			input.wrap = isNote ? "soft" : "off";
+			input.style.fontSize = `${12 * zoom}px`;
+			input.style.lineHeight = `${16 * zoom}px`;
+			input.style.left = `${worldPoint.x - rect.left}px`;
 			input.style.top = `${worldPoint.y - rect.top}px`;
+			input.style.transform = `translateX(-50%) rotate(${angle}rad)`;
+			restoreText();
+			const fields = s.surface.element.querySelectorAll?.("[data-entity-id] [data-genogram-field]") ?? [];
+			for (const el of fields) if (el.getAttribute("data-genogram-field") === session.field && el.closest("[data-entity-id]")?.getAttribute("data-entity-id") === session.id) {
+				el.style.visibility = "hidden";
+				hidden.push(el);
+			}
 		});
 		detach = () => {
 			offWorld();
@@ -426,7 +1001,34 @@ function mountInteractions(context, run) {
 		}, screen = {
 			x: 0,
 			y: 0
+		}, bounds = {
+			x: 0,
+			y: 0,
+			width: 0,
+			height: 0,
+			rotation: 0
+		}, hit = {
+			id: "",
+			priority: 0,
+			distanceScreenPx: 0
 		};
+		let hoverX = 0, hoverY = 0, hovering = false;
+		const tooltip = document.createElement("div");
+		tooltip.setAttribute("role", "tooltip");
+		Object.assign(tooltip.style, {
+			position: "absolute",
+			display: "none",
+			pointerEvents: "none",
+			whiteSpace: "nowrap",
+			padding: "5px 8px",
+			borderRadius: "5px",
+			background: "var(--alid-bg-surface, #fff)",
+			color: "var(--alid-text, #18181b)",
+			border: "1px solid var(--alid-border-subtle, #e4e4e7)",
+			boxShadow: "var(--alid-shadow, 0 1px 2px #0001)",
+			font: "12px/1.4 var(--alid-font, system-ui, sans-serif)"
+		});
+		s.surface.hud.append(tooltip);
 		let gesture = null, composing = false, until = 0;
 		const key = `root.select.${prefix}:adjust`;
 		function cancel() {
@@ -449,13 +1051,14 @@ function mountInteractions(context, run) {
 			const id = target();
 			if (!id) return false;
 			const p = world.getCanonical(id, ids.person);
-			if (kind === "move" || kind.startsWith("add-") || kind.includes("sibling")) {
+			if (kind.startsWith("add-") || kind.includes("sibling")) {
 				if (!p) return false;
-				const b = world.getComputed(id, "computed.layoutBounds");
-				if (!b) return false;
-				const dx = kind === "move" ? b.width / 2 : kind === "older-sibling" ? -18 : kind === "younger-sibling" || kind === "add-partner" ? b.width + 18 : b.width / 2, dy = kind === "move" ? -42 : kind === "add-parents" ? -18 : kind === "add-child" ? b.height + 18 : kind === "add-partner" ? 32 : kind === "add-twin" ? b.height : 32;
-				out.x = b.x + dx;
-				out.y = b.y + dy;
+				const geometry = world.getComputed(id, `computed.${ids.person}`);
+				if (!geometry) return false;
+				selectionBox(p, geometry, bounds);
+				const offset = 12 / Math.max(.01, s.host.getZoom());
+				out.x = kind === "add-partner" ? bounds.x + bounds.width + offset : bounds.x + bounds.width / 2;
+				out.y = kind === "add-parents" ? bounds.y - offset : kind === "add-child" ? bounds.y + bounds.height + offset : bounds.y + bounds.height / 2;
 				return true;
 			}
 			const g = world.getComputed(id, `computed.${ids[kind]}`);
@@ -464,18 +1067,18 @@ function mountInteractions(context, run) {
 			out.y = g.origin.y;
 			return true;
 		}
-		for (const kind of [
-			"move",
+		const kinds = [
 			"add-partner",
 			"add-child",
 			"add-parents",
 			"union",
 			"parentage",
 			"relation"
-		]) {
-			const el = document.createElement("button");
+		];
+		for (const kind of kinds) {
+			const isLineHandle = kind === "union" || kind === "parentage";
+			const el = isLineHandle ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : document.createElement("button");
 			const title = {
-				move: "세대·형제 간격 이동",
 				"add-partner": "배우자 추가",
 				"add-child": "자녀 추가",
 				"add-parents": "부모 추가",
@@ -483,20 +1086,27 @@ function mountInteractions(context, run) {
 				parentage: "자녀 분기 높이",
 				relation: "정서선 곡률"
 			}[kind];
-			const paths = icons[kind]?.paths;
-			if (paths) el.innerHTML = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join("")}</svg>`;
+			const isAddButton = kind.startsWith("add-");
+			const isBlueHandle = isAddButton || isLineHandle;
+			const paths = isAddButton ? ["M10 4v12M4 10h12"] : icons[kind]?.paths;
+			if (isLineHandle) {
+				el.setAttribute("viewBox", "0 0 24 24");
+				el.setAttribute("aria-hidden", "true");
+				el.innerHTML = "<path d=\"M2 6H22 M2 18H22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/>";
+			} else if (paths) el.innerHTML = `<svg viewBox="0 0 20 20" width="${isAddButton ? 12 : 14}" height="${isAddButton ? 12 : 14}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join("")}</svg>`;
 			else el.textContent = "◆";
-			el.title = title;
+			if (!isLineHandle) el.title = title;
 			el.setAttribute("aria-label", title);
 			el.dataset.canvasUi = "true";
 			Object.assign(el.style, {
 				position: "absolute",
-				width: "22px",
-				height: "22px",
+				width: isLineHandle ? "24px" : isAddButton ? "16px" : "22px",
+				height: isLineHandle ? "24px" : isAddButton ? "16px" : "22px",
 				padding: "0",
-				border: "1px solid #64748b",
-				borderRadius: "50%",
-				background: "white",
+				border: isBlueHandle ? "none" : "1px solid #64748b",
+				borderRadius: isBlueHandle ? "3px" : "50%",
+				background: isLineHandle ? "transparent" : isAddButton ? "var(--alid-accent, #008FF0)" : "white",
+				color: isLineHandle ? "var(--alid-accent, #008FF0)" : isAddButton ? "white" : "",
 				pointerEvents: "none",
 				display: "none"
 			});
@@ -505,36 +1115,18 @@ function mountInteractions(context, run) {
 			const handle = {
 				id: `${prefix}:${kind}`,
 				priority: 30,
-				shape: "circle",
+				shape: isBlueHandle ? "rect" : "circle",
 				radiusScreenPx: 11,
+				widthScreenPx: isLineHandle ? 24 : isAddButton ? 16 : 22,
+				heightScreenPx: isLineHandle ? 24 : isAddButton ? 16 : 22,
 				getWorldPosition: (out) => location(kind, out),
 				onPointerDown(e) {
 					if (composing || e.isComposing || Date.now() < until || e.button !== 0) return false;
-					if (kind !== "move" && !(kind in ids)) {
+					if (!(kind in ids)) {
 						run(kind);
 						return true;
 					}
 					const id = target();
-					if (kind === "move") {
-						const base = world.getCanonical(id, "core.transform");
-						s.host.screenToWorld(e.clientX, e.clientY, point);
-						gesture = {
-							id,
-							kind,
-							baseX: base.x,
-							baseY: base.y,
-							startX: point.x,
-							startY: point.y,
-							startClientY: e.clientY,
-							startClientX: e.clientX,
-							pointer: e.pointerId,
-							x: base.x,
-							y: base.y
-						};
-						s.selection.stateMachine.transition(key);
-						s.surface.element.setPointerCapture(e.pointerId);
-						return true;
-					}
 					const field = kind === "union" ? "barOffset" : kind === "parentage" ? "barRatio" : "curveOffset", p = world.getCanonical(id, ids[kind]);
 					s.host.screenToWorld(e.clientX, e.clientY, point);
 					gesture = {
@@ -555,32 +1147,16 @@ function mountInteractions(context, run) {
 			off.push(s.selection.gizmos.register(handle));
 			handles.push(handle);
 		}
+		function clearAdjustmentCursor() {
+			if (s.surface.element.style.cursor === "ns-resize") s.surface.element.style.cursor = "";
+		}
 		function move(e) {
+			hovering = !gesture && !e.buttons && e.pointerType !== "touch";
+			hoverX = e.clientX;
+			hoverY = e.clientY;
+			s.host.requestRender();
 			if (!gesture || e.pointerId !== gesture.pointer) return;
 			s.host.screenToWorld(e.clientX, e.clientY, point);
-			if (gesture.kind === "move") {
-				let x = gesture.baseX + point.x - gesture.startX, y = gesture.baseY + point.y - gesture.startY;
-				const threshold = 8 / Math.max(.01, s.host.getZoom());
-				for (const other of world.listEntityIds()) {
-					if (other === gesture.id || !world.getCanonical(other, ids.person)) continue;
-					const t = world.getCanonical(other, "core.transform");
-					if (!t) continue;
-					for (let rail = -1; rail <= 1; rail++) {
-						const rx = t.x + rail * 110, ry = t.y + rail * 240;
-						if (Math.abs(x - rx) < threshold) x = rx;
-						if (Math.abs(y - ry) < threshold) y = ry;
-					}
-				}
-				gesture.x = x;
-				gesture.y = y;
-				if (Math.hypot(e.clientX - gesture.startClientX, e.clientY - gesture.startClientY) < 3.5) return;
-				overlay.set(gesture.id, "core.transform", {
-					x,
-					y
-				});
-				s.host.requestRender();
-				return;
-			}
 			gesture.delta = (point.y - gesture.startY) / (gesture.kind === "parentage" ? 200 : 1);
 			if (Math.abs(e.clientY - gesture.startClientY) < 3.5) return;
 			const value = gesture.initial + gesture.delta;
@@ -591,27 +1167,6 @@ function mountInteractions(context, run) {
 			if (!gesture || e.pointerId !== gesture.pointer) return;
 			const g = gesture;
 			cancel();
-			if (g.kind === "move") {
-				if (Math.hypot(e.clientX - g.startClientX, e.clientY - g.startClientY) < 3.5) return;
-				const current = world.getCanonical(g.id, "core.transform");
-				if (!current) return;
-				s.host.history.begin();
-				try {
-					world.applyCanonicalTransaction(`${prefix}:rail-move`, [{
-						id: g.id,
-						aspect: "core.transform",
-						patch: {
-							x: current.x + g.x - g.baseX,
-							y: current.y + g.y - g.baseY
-						}
-					}]);
-					s.host.history.commit();
-				} catch (err) {
-					s.host.history.abort();
-					throw err;
-				}
-				return;
-			}
 			if (Math.abs(e.clientY - g.startClientY) < 3.5) return;
 			const current = world.getCanonical(g.id, ids[g.kind]);
 			if (!current) return;
@@ -634,6 +1189,15 @@ function mountInteractions(context, run) {
 		}
 		const events = {
 			pointermove: move,
+			pointerleave: () => {
+				hovering = false;
+				tooltip.style.display = "none";
+				clearAdjustmentCursor();
+			},
+			pointerdown: () => {
+				hovering = false;
+				tooltip.style.display = "none";
+			},
 			pointerup: up,
 			pointercancel: cancel,
 			lostpointercapture: cancel,
@@ -652,6 +1216,18 @@ function mountInteractions(context, run) {
 			off.push(() => s.surface.element.removeEventListener(name, fn));
 		}
 		off.push(frames.subscribe(() => {
+			const hasHit = hovering && s.selection.gizmos.hitTest(hoverX, hoverY, s.host.worldToScreen, hit);
+			if (hasHit && (hit.id === `diagram.genogram:union` || hit.id === `diagram.genogram:parentage`)) s.surface.element.style.cursor = "ns-resize";
+			else clearAdjustmentCursor();
+			const hovered = hasHit ? kinds.findIndex((kind) => kind.startsWith("add-") && `diagram.genogram:${kind}` === hit.id) : -1;
+			tooltip.style.display = hovered >= 0 ? "block" : "none";
+			if (hovered >= 0 && handles[hovered].getWorldPosition(point)) {
+				tooltip.textContent = elements[hovered].title;
+				s.host.worldToScreen(point.x, point.y, screen);
+				const rect = s.surface.hud.getBoundingClientRect();
+				tooltip.style.left = `${screen.x - rect.left + 16}px`;
+				tooltip.style.top = `${screen.y - rect.top + 14}px`;
+			} else tooltip.style.display = "none";
 			for (let i = 0; i < handles.length; i++) {
 				const el = elements[i];
 				if (!handles[i].getWorldPosition(point)) {
@@ -661,14 +1237,17 @@ function mountInteractions(context, run) {
 				s.host.worldToScreen(point.x, point.y, screen);
 				el.style.display = "block";
 				const rect = s.surface.hud.getBoundingClientRect();
-				el.style.left = `${screen.x - rect.left - 11}px`;
-				el.style.top = `${screen.y - rect.top - 11}px`;
+				const half = kinds[i] === "union" || kinds[i] === "parentage" ? 12 : kinds[i].startsWith("add-") ? 8 : 11;
+				el.style.left = `${screen.x - rect.left - half}px`;
+				el.style.top = `${screen.y - rect.top - half}px`;
 			}
 		}));
 		clean = () => {
 			cancel();
+			clearAdjustmentCursor();
 			for (const f of off.reverse()) f();
 			overlay.dispose();
+			tooltip.remove();
 			for (const el of elements) el.remove();
 		};
 	}
@@ -711,254 +1290,292 @@ function createPackageManifest(metadata) {
 		}
 	};
 }
-// src/ui-labels.js
-var labels$1 = {
-	symbol: "인물 기호",
-	orientation: "성적 지향 표시",
-	clinical: "임상 상태",
-	lifeStatus: "생존 상태",
-	status: "결합 상태",
-	pedigree: "자녀 관계",
-	twinType: "쌍둥이",
-	kind: "정서 관계",
-	strokeStyle: "테두리",
-	male: "남성",
-	female: "여성",
-	unknown: "미상",
-	trans_male: "트랜스 남성",
-	trans_female: "트랜스 여성",
-	nonbinary: "논바이너리",
-	pregnancy: "임신",
-	miscarriage: "자연유산",
-	abortion: "인공유산",
-	stillbirth_male: "사산 남",
-	stillbirth_female: "사산 여",
-	pet: "반려동물",
-	none: "없음",
-	gay: "동성애 남성",
-	lesbian: "동성애 여성",
-	bisexual: "양성애",
-	physical: "신체 질환",
-	mental: "정신 건강",
-	substance: "물질 사용",
-	mental_substance: "정신·물질 사용",
-	recovering: "회복 중",
-	alive: "생존",
-	deceased: "사망",
-	marriage: "혼인",
-	engagement: "약혼",
-	cohabitation: "동거",
-	separation: "별거",
-	divorce: "이혼",
-	reunion_divorce: "이혼 후 재결합",
-	reunion_separation: "별거 후 재결합",
-	secret_affair: "비공식 관계",
-	biological: "친생",
-	adopted: "입양",
-	foster: "위탁",
-	surrogate: "대리 출생",
-	fraternal: "이란성",
-	identical: "일란성",
-	close: "친밀",
-	fused: "융합",
-	distant: "소원",
-	hostile: "갈등",
-	fused_hostile: "융합·갈등",
-	cutoff: "단절",
-	cutoff_repaired: "단절 후 회복",
-	estranged: "거리·단절",
-	focused_on: "집중",
-	abuse_physical: "신체 학대",
-	abuse_emotional: "정서 학대",
-	abuse_sexual: "성적 학대",
-	dashed: "파선",
-	dotted: "점선",
-	name: "이름",
-	ageLabel: "나이",
-	yearSpan: "출생·사망 연도",
-	note: "임상 메모"
-};
-// src/aspects/person.js
-var symbols = [
-	"male",
-	"female",
-	"unknown",
-	"trans_male",
-	"trans_female",
-	"nonbinary",
-	"pregnancy",
-	"miscarriage",
-	"abortion",
-	"stillbirth_male",
-	"stillbirth_female",
-	"pet"
-];
-var options = (field, values, label) => ({
-	kind: "segmented",
-	field,
-	label,
-	placement: "inspector",
-	options: values.map((value) => ({
-		value,
-		label: labels$1[value] ?? value
-	}))
+// src/relationship-icons.js
+var icon = (...paths) => ({
+	size: 20,
+	paths
 });
-function body(p, g) {
-	const cx = g.width / 2, cy = 32;
-	let s = "";
-	const circle = (r) => `<circle cx="${cx}" cy="${cy}" r="${r}"/>`, rect = (r) => `<rect x="${cx - r}" y="${cy - r}" width="${r * 2}" height="${r * 2}"/>`, diamond = `<path d="M ${cx} 6 l 26 26 -26 26 -26 -26 Z"/>`;
-	switch (p.symbol) {
+var solid = (d) => ({
+	d,
+	fill: true
+});
+var zig = "M1 10 L3 7 5 13 7 7 9 13 11 7 13 13 15 7 17 13 19 10";
+var zigShort = "M1 10 L3 7 5 13 7 7 9 13 11 7 13 13 15 10";
+var pair = ["M1 5 H19", "M1 15 H19"];
+var arrow = "M15 7 L19 10 L15 13";
+var triangle = "M19 10 L14 7 L14 13 Z";
+var relationshipIcons = {
+	close: icon(...pair),
+	fused: icon(...pair, "M1 10 H19"),
+	distant: icon("M1 10 H4 M7 10 H10 M13 10 H16 M19 10 H20"),
+	hostile: icon(zig),
+	close_hostile: icon(...pair, zig),
+	fused_hostile: icon(...pair, "M1 10 H19", zig),
+	focused_on: icon("M1 10 H19", arrow),
+	negative_focused: icon(zigShort, arrow),
+	caregiving: icon("M1 10 H19", arrow, "M11 7 L15 10 L11 13"),
+	cutoff: icon("M1 10 H7 M13 10 H19 M7 5 V15 M13 5 V15"),
+	cutoff_repaired: icon("M1 10 H3 M5 10 H6 M14 10 H15 M17 10 H19 M6 5 V15 M14 5 V15 M8 10 A2 2 0 1 0 12 10 A2 2 0 1 0 8 10"),
+	estranged: icon("M1 10 H3 M5 10 H7 M13 10 H15 M17 10 H19 M7 5 V15 M13 5 V15"),
+	abuse_physical: icon(zigShort, solid(triangle)),
+	abuse_emotional: icon(zigShort, triangle),
+	abuse_sexual: icon("M1 5 H15", "M1 15 H15", zigShort, solid(triangle))
+};
+// src/geometry/label-gaps.js
+/** Local label rectangles are deterministic and match the rendered text's size cap. */
+function labelObstacles(view) {
+	const result = [];
+	for (const id of view.listEntityIds?.() ?? []) {
+		const person = view.getCanonical(id, ids.person), box = person && personBounds(view, id);
+		if (!box) continue;
+		const angle = box.rotation ?? 0, cos = Math.cos(angle), sin = Math.sin(angle);
+		for (const [text, baseline] of labelRows(person, box.width)) {
+			const half = Math.min(Math.max(1, box.width - 8), Array.from(String(text)).length * 12) / 2 + 2;
+			result.push({
+				cx: box.x + box.width / 2,
+				cy: box.y + box.height / 2,
+				cos,
+				sin,
+				left: box.width / 2 - half,
+				right: box.width / 2 + half,
+				top: baseline - 14,
+				bottom: baseline + 6,
+				width: box.width,
+				height: box.height
+			});
+		}
+	}
+	return result;
+}
+/** Remove only the portions hidden by text, retaining the underlying relationship data. */
+function pathsAroundLabels(paths, view) {
+	const obstacles = labelObstacles(view);
+	if (!obstacles.length) return paths;
+	const result = [];
+	for (const path of paths) {
+		let current;
+		for (let i = 1; i < path.length; i++) {
+			const a = path[i - 1], b = path[i], dx = b.x - a.x, dy = b.y - a.y;
+			const blocked = [];
+			for (const o of obstacles) {
+				const ax = a.x - o.cx, ay = a.y - o.cy;
+				const x = ax * o.cos + ay * o.sin + o.width / 2;
+				const y = -ax * o.sin + ay * o.cos + o.height / 2;
+				const vx = dx * o.cos + dy * o.sin, vy = -dx * o.sin + dy * o.cos;
+				let lo = 0, hi = 1;
+				for (const [p, q] of [
+					[-vx, x - o.left],
+					[vx, o.right - x],
+					[-vy, y - o.top],
+					[vy, o.bottom - y]
+				]) {
+					if (p === 0) {
+						if (q < 0) {
+							lo = 1;
+							hi = 0;
+							break;
+						}
+					} else if (p < 0) lo = Math.max(lo, q / p);
+					else hi = Math.min(hi, q / p);
+					if (lo > hi) break;
+				}
+				if (lo < hi && hi > 0 && lo < 1) blocked.push([Math.max(0, lo), Math.min(1, hi)]);
+			}
+			blocked.sort((l, r) => l[0] - r[0]);
+			let start = 0;
+			const emit = (end) => {
+				if (end - start <= 1e-9) return;
+				const from = {
+					x: a.x + dx * start,
+					y: a.y + dy * start
+				}, to = {
+					x: a.x + dx * end,
+					y: a.y + dy * end
+				};
+				if (current && start === 0) current.push(to);
+				else {
+					current = [from, to];
+					result.push(current);
+				}
+			};
+			for (const [lo, hi] of blocked) {
+				if (hi <= start) continue;
+				if (lo > start) emit(lo);
+				current = void 0;
+				start = Math.max(start, hi);
+			}
+			if (start < 1) emit(1);
+			else current = void 0;
+		}
+	}
+	return result;
+}
+// src/geometry/person-anchors.js
+/** Center of the rendered person symbol, transformed with the person's authored rotation. */
+function personSymbol(view, id) {
+	const props = view.getCanonical(id, ids.person), box = props && personBounds(view, id);
+	if (!box) return;
+	const rotation = Number.isFinite(box.rotation) ? box.rotation : 0;
+	const cos = Math.cos(rotation), sin = Math.sin(rotation), dy = 32 - box.height / 2;
+	return {
+		props,
+		cos,
+		sin,
+		x: box.x + box.width / 2 - dy * sin,
+		y: box.y + box.height / 2 + dy * cos
+	};
+}
+var cross = (ax, ay, bx, by) => ax * by - ay * bx;
+function outline(symbol) {
+	const scale = symbol.props.isIndexPerson ? 1.15 : 1;
+	let radius, vertices;
+	switch (symbol.props.symbol) {
 		case "female":
-			s = circle(26);
-			break;
-		case "male":
-			s = rect(26);
-			break;
-		case "trans_male":
-			s = rect(26) + circle(18);
-			break;
 		case "trans_female":
-			s = circle(26) + rect(18);
-			break;
-		case "pregnancy":
-			s = `<path d="M ${cx} 8 l 25 44 h -50 Z"/>`;
-			break;
-		case "miscarriage":
-			s = `<circle cx="${cx}" cy="32" r="9" fill="#334155"/>`;
-			break;
-		case "abortion":
-			s = `<path d="M ${cx - 9} 23 l 18 18 m 0 -18 l -18 18"/>`;
-			break;
-		case "stillbirth_male":
-			s = rect(15);
+			radius = 26;
 			break;
 		case "stillbirth_female":
-			s = circle(15);
+			radius = 15;
+			break;
+		case "miscarriage":
+			radius = 9;
+			break;
+		case "male":
+		case "trans_male":
+			vertices = [
+				[-26, -26],
+				[26, -26],
+				[26, 26],
+				[-26, 26]
+			];
+			break;
+		case "stillbirth_male":
+			vertices = [
+				[-15, -15],
+				[15, -15],
+				[15, 15],
+				[-15, 15]
+			];
+			break;
+		case "abortion":
+			vertices = [
+				[-9, -9],
+				[9, -9],
+				[9, 9],
+				[-9, 9]
+			];
+			break;
+		case "pregnancy":
+			vertices = [
+				[0, -24],
+				[25, 20],
+				[-25, 20]
+			];
 			break;
 		case "pet":
-			s = `<path d="M ${cx - 23} 10 h 46 v 27 l -23 20 -23 -20 Z"/>`;
+			vertices = [
+				[-23, -22],
+				[23, -22],
+				[23, 5],
+				[0, 25],
+				[-23, 5]
+			];
 			break;
-		case "nonbinary":
-			s = diamond + circle(16);
-			break;
-		default: s = diamond;
+		default: vertices = [
+			[0, -26],
+			[26, 0],
+			[0, 26],
+			[-26, 0]
+		];
 	}
-	let marks = "";
-	if (p.clinical !== "none") {
-		const c = p.clinical;
-		marks += `<path d="M ${cx - 18} 32 h ${c === "substance" ? 36 : 18} v 18 h -${c === "substance" ? 36 : 18} Z" fill="#64748b" opacity=".45"/>`;
-		if (c === "physical" || c === "mental_substance") for (let i = 0; i < 6; i++) marks += `<path d="M ${cx + 2 + i * 3} 32 v 18" stroke="#334155"/>`;
-		if (c === "recovering") marks += `<path d="M ${cx - 15} 40 l 10 8 20 -24" stroke="#334155" fill="none"/>`;
-	}
-	if (p.orientation !== "none") marks += `<path d="M ${cx - 12} 18 h 24 l -12 20 Z" fill="none" stroke="#334155"/>`;
-	if (p.isIndexPerson) marks += `<g transform="translate(${cx},32) scale(1.15) translate(${-cx},-32)" fill="none" stroke="#334155">${s}</g>`;
-	if (p.lifeStatus === "deceased" || p.symbol.startsWith("stillbirth")) marks += `<path d="M ${cx - 22} 10 l 44 44 m 0 -44 l -44 44" stroke="#334155" fill="none"/>`;
-	const texts = [
-		[p.ageLabel, 36],
-		[display(p.name, "name"), 78],
-		[display(p.yearSpan), 94],
-		...lens.showNotes ? String(p.note).split("\n").map((x, i) => [display(x), 110 + i * 16]) : []
-	];
-	return `<g fill="white" stroke="#334155" stroke-width="2">${s}</g>${marks}<g text-anchor="middle" fill="#334155" font-family="sans-serif" font-size="12">${texts.map(([v, y]) => `<text x="${cx}" y="${y}"${Array.from(String(v ?? "")).length * 12 > g.width - 8 ? ` textLength="${Math.max(1, g.width - 8)}" lengthAdjust="spacingAndGlyphs"` : ""}>${escapeXml(v)}</text>`).join("")}</g>`;
+	return radius !== void 0 ? { radius: radius * scale } : { vertices: vertices.map(([x, y]) => [x * scale, y * scale]) };
 }
-var person = {
-	id: ids.person,
-	label: "인물",
-	defaults: defaults.person,
-	refs: { householdId: "nullify" },
-	textFields: [
-		"name",
-		"ageLabel",
-		"yearSpan",
-		"note"
-	],
-	textSearchFields: [
-		"name",
-		"yearSpan",
-		"note"
-	],
-	dependsOnCanonical: [
-		ids.person,
-		"core.transform",
-		"core.bounds"
-	],
-	derive(p, id, v) {
-		const t = v.getCanonical(id, "core.transform") ?? {}, b = v.getCanonical(id, "core.bounds") ?? {};
-		return {
-			x: finite(t.x),
-			y: finite(t.y),
-			rotation: finite(t.rotation),
-			labelHeight: 110 + 16 * (String(p.note ?? "").split("\n").length - 1),
-			width: b.width > 0 ? b.width : 120,
-			height: b.height > 0 ? b.height : 120
-		};
-	},
-	paintOverflow: 32,
-	paintBounds(g) {
-		if (!g) return;
-		const h = Math.max(g.height, g.labelHeight + 8), a = g.rotation, c = Math.cos(a), s = Math.sin(a), cx = g.x + g.width / 2, cy = g.y + g.height / 2;
-		const points = [
-			[0, 0],
-			[g.width, 0],
-			[g.width, h],
-			[0, h]
-		].map(([x, y]) => ({
-			x: cx + (x - g.width / 2) * c - (y - g.height / 2) * s,
-			y: cy + (x - g.width / 2) * s + (y - g.height / 2) * c
-		}));
-		const x = Math.min(...points.map((p) => p.x)), y = Math.min(...points.map((p) => p.y));
-		return {
-			x,
-			y,
-			width: Math.max(...points.map((p) => p.x)) - x,
-			height: Math.max(...points.map((p) => p.y)) - y
-		};
-	},
-	renderSvg(p, g) {
-		return { svg: g ? `<g transform="translate(${g.x},${g.y}) rotate(${g.rotation * 180 / Math.PI},${g.width / 2},${g.height / 2})">${body(p, g)}</g>` : "" };
-	},
-	ui: { controls: [
-		...[
-			"name",
-			"ageLabel",
-			"yearSpan",
-			"note"
-		].map((field) => ({
-			kind: "text",
-			field,
-			label: labels$1[field] ?? field,
-			placement: "inspector"
-		})),
-		options("symbol", symbols, "인물 기호"),
-		options("orientation", [
-			"none",
-			"gay",
-			"lesbian",
-			"bisexual"
-		], "성적 지향 표시"),
-		options("clinical", [
-			"none",
-			"physical",
-			"mental",
-			"substance",
-			"mental_substance",
-			"recovering"
-		], "임상 상태"),
-		options("lifeStatus", ["alive", "deceased"], "생존"),
-		{
-			kind: "number",
-			field: "birthOrderHint",
-			label: "형제 순서",
-			placement: "inspector"
-		},
-		{
-			kind: "toggle",
-			field: "isIndexPerson",
-			label: "내담자",
-			placement: "inspector"
+function localPoint(symbol, point) {
+	const x = point.x - symbol.x, y = point.y - symbol.y;
+	return {
+		x: x * symbol.cos + y * symbol.sin,
+		y: -x * symbol.sin + y * symbol.cos
+	};
+}
+function insidePolygon(x, y, vertices) {
+	let inside = false;
+	for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+		const [xi, yi] = vertices[i], [xj, yj] = vertices[j];
+		if (yi > y !== yj > y && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+	}
+	return inside;
+}
+/** Exact segment intervals occupied by the circular or polygonal person outline. */
+function insideIntervals(a, b, entry) {
+	const { symbol, shape } = entry;
+	const start = localPoint(symbol, a), end = localPoint(symbol, b), dx = end.x - start.x, dy = end.y - start.y;
+	const cuts = [0, 1];
+	if (shape.radius !== void 0) {
+		const aa = dx * dx + dy * dy, bb = 2 * (start.x * dx + start.y * dy), cc = start.x ** 2 + start.y ** 2 - shape.radius ** 2;
+		const disc = bb * bb - 4 * aa * cc;
+		if (aa > 0 && disc >= 0) {
+			for (const t of [(-bb - Math.sqrt(disc)) / (2 * aa), (-bb + Math.sqrt(disc)) / (2 * aa)]) if (t > 0 && t < 1) cuts.push(t);
 		}
-	] }
-};
+	} else {
+		const vertices = shape.vertices;
+		for (let i = 0; i < vertices.length; i++) {
+			const p = vertices[i], q = vertices[(i + 1) % vertices.length], ex = q[0] - p[0], ey = q[1] - p[1];
+			const denominator = cross(dx, dy, ex, ey);
+			if (Math.abs(denominator) < 1e-12) continue;
+			const px = p[0] - start.x, py = p[1] - start.y;
+			const t = cross(px, py, ex, ey) / denominator, u = cross(px, py, dx, dy) / denominator;
+			if (t > 0 && t < 1 && u >= -1e-12 && u <= 1 + 1e-12) cuts.push(t);
+		}
+	}
+	cuts.sort((x, y) => x - y);
+	const intervals = [];
+	for (let i = 1; i < cuts.length; i++) {
+		const lo = cuts[i - 1], hi = cuts[i];
+		if (hi - lo < 1e-10) continue;
+		const t = (lo + hi) / 2, x = start.x + t * dx, y = start.y + t * dy;
+		if (shape.radius !== void 0 ? x * x + y * y < shape.radius ** 2 - 1e-9 : insidePolygon(x, y, shape.vertices)) intervals.push([lo, hi]);
+	}
+	return intervals;
+}
+/** Remove portions inside person symbols while retaining connected outside segments. */
+function pathsOutsideSymbols(paths, symbols) {
+	const result = [], entries = symbols.map((symbol) => ({
+		symbol,
+		shape: outline(symbol)
+	}));
+	for (const path of paths) {
+		let current;
+		for (let i = 1; i < path.length; i++) {
+			const a = path[i - 1], b = path[i], dx = b.x - a.x, dy = b.y - a.y;
+			const blocked = entries.flatMap((entry) => insideIntervals(a, b, entry)).sort((x, y) => x[0] - y[0]);
+			let start = 0;
+			const emit = (end) => {
+				if (end - start <= 1e-9) return;
+				const from = {
+					x: a.x + dx * start,
+					y: a.y + dy * start
+				}, to = {
+					x: a.x + dx * end,
+					y: a.y + dy * end
+				};
+				if (current && start === 0) current.push(to);
+				else {
+					current = [from, to];
+					result.push(current);
+				}
+			};
+			for (const [lo, hi] of blocked) {
+				if (hi <= start) continue;
+				if (lo > start) emit(lo);
+				current = void 0;
+				start = Math.max(start, hi);
+			}
+			if (start < 1) emit(1);
+			else current = void 0;
+		}
+	}
+	return result;
+}
 // src/geometry/paths.js
 function distance(paths, x, y) {
 	let best = Infinity;
@@ -1019,6 +1636,7 @@ var point = (x, y) => ({
 });
 // src/aspects/lines.js
 var people = (v) => v.listEntityIds?.() ?? [];
+var RELATION_WIDTH_SCALE = 2 / 3;
 function anchor(v, id, bottom = false) {
 	const b = personBounds(v, id);
 	if (!b) return;
@@ -1027,20 +1645,62 @@ function anchor(v, id, bottom = false) {
 }
 function labelBottom(v, id) {
 	const b = personBounds(v, id), p = v.getCanonical(id, ids.person);
-	return b ? b.y + 110 + 16 * (String(p?.note ?? "").split("\n").length - 1) : 0;
+	return b ? b.y + Math.max(110 + 16 * (String(p?.note ?? "").split("\n").length - 1), (labelExtent(p, b.width)?.bottom ?? 4) - 4) : 0;
+}
+function dashLine(points, on = 6, off = 4) {
+	const paths = [];
+	let phase = 0;
+	for (let i = 1; i < points.length; i++) {
+		const a = points[i - 1], b = points[i], dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy);
+		if (!length) continue;
+		let at = 0;
+		while (at < length - 1e-9) {
+			const draw = phase < on, take = Math.min(length - at, (draw ? on : on + off) - phase);
+			if (take <= 1e-9) {
+				phase = 0;
+				continue;
+			}
+			if (draw) paths.push([point(a.x + dx * at / length, a.y + dy * at / length), point(a.x + dx * (at + take) / length, a.y + dy * (at + take) / length)]);
+			at += take;
+			phase = (phase + take) % (on + off);
+		}
+	}
+	return paths;
+}
+function ring(center, radius, steps = 24) {
+	return Array.from({ length: steps + 1 }, (_, i) => point(center.x + radius * Math.cos(i * 2 * Math.PI / steps), center.y + radius * Math.sin(i * 2 * Math.PI / steps)));
+}
+function parallel(points, offset) {
+	const a = points[0], b = points[points.length - 1], dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy) || 1;
+	return points.map((point$1) => point(point$1.x - dy / length * offset, point$1.y + dx / length * offset));
 }
 function unionGeometry(p, id, v) {
 	const a = anchor(v, p.partnerA, true), b = anchor(v, p.partnerB, true);
 	if (!a || !b) return;
 	const y = Math.max(a.y, b.y, labelBottom(v, p.partnerA), labelBottom(v, p.partnerB)) + Math.max(12, finite(p.barOffset, 44));
+	const origin = point((a.x + b.x) / 2, y), middle = [point(a.x, y), point(b.x, y)];
+	const middlePaths = p.status === "cohabitation" ? dashLine(middle, 6, 4) : p.status === "engagement" ? dashLine(middle, 2, 4) : p.status === "secret_affair" ? dashLine(middle, 1, 5) : [middle];
+	const paths = [
+		[a, middle[0]],
+		...middlePaths,
+		[middle[1], b]
+	];
+	if ([
+		"separation",
+		"divorce",
+		"reunion_divorce",
+		"reunion_separation"
+	].includes(p.status)) {
+		const count = p.status.includes("divorce") ? 2 : 1;
+		for (let i = 0; i < count; i++) {
+			const x = origin.x + (i - (count - 1) / 2) * 7;
+			paths.push([point(x - 5, y + 8), point(x + 5, y - 8)]);
+		}
+		if (p.status.startsWith("reunion")) paths.push(ring(origin, 12));
+	}
 	return {
-		paths: [[
-			a,
-			point(a.x, y),
-			point(b.x, y),
-			b
-		]],
-		origin: point((a.x + b.x) / 2, y),
+		paths,
+		origin,
 		label: p.label
 	};
 }
@@ -1066,47 +1726,119 @@ function parentageGeometry(p, id, v) {
 		paths.push([o, point(o.x, y)], [point(Math.min(...xs), y), point(Math.max(...xs), y)]);
 	}
 	const twin = p.twinType !== "none" && anchor(v, p.twinWith);
-	if (twin) {
-		const mid = (c.x + twin.x) / 2;
-		paths.push([point(mid, y), c]);
-		if (p.child < p.twinWith && p.twinType === "identical") paths.push([point((mid + c.x) / 2, (y + c.y) / 2), point((mid + twin.x) / 2, (y + twin.y) / 2)]);
-	} else paths.push([point(c.x, y), c]);
+	const mid = twin ? (c.x + twin.x) / 2 : c.x;
+	const branch = [point(mid, y), c];
+	if (p.pedigree === "foster") paths.push(...dashLine(branch));
+	else if (p.pedigree === "adopted") paths.push(parallel(branch, -3), ...dashLine(parallel(branch, 3)));
+	else paths.push(branch);
+	if (twin && p.child < p.twinWith && p.twinType === "identical") paths.push([point((mid + c.x) / 2, (y + c.y) / 2), point((mid + twin.x) / 2, (y + twin.y) / 2)]);
 	return {
 		paths,
 		origin: point(c.x, y),
-		label: ""
+		label: p.pedigree === "surrogate" ? "대리" : ""
 	};
 }
 function relationGeometry(p, id, v) {
-	const a = anchor(v, p.from, true), b = anchor(v, p.to);
-	if (!a || !b) return;
+	const start = personSymbol(v, p.from), end = personSymbol(v, p.to);
+	if (!start || !end) return;
+	const a = point(start.x, start.y), b = point(end.x, end.y);
 	const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
 	if (len < 1) return;
-	const nx = -dy / len, ny = dx / len, off = finite(p.curveOffset), count = Math.max(2, Math.ceil(len / 6)), paths = [];
-	const copies = p.kind === "fused" ? 3 : p.kind === "close" || p.kind === "fused_hostile" ? 2 : 1;
-	for (let k = 0; k < copies; k++) {
-		const pts = [];
+	const nx = -dy / len, ny = dx / len, off = finite(p.curveOffset), count = Math.max(2, Math.ceil(len / 6));
+	const mid = point((a.x + b.x) / 2 + nx * off, (a.y + b.y) / 2 + ny * off), paths = [], fills = [];
+	const curve = (offset = 0, zigzag = false) => {
+		const points = [];
 		for (let i = 0; i <= count; i++) {
-			const t = i / count, zig = (p.kind.includes("hostile") || p.kind.startsWith("abuse")) && i > 0 && i < count ? i % 2 ? 4 : -4 : 0, h = 4 * off * t * (1 - t) + (k - (copies - 1) / 2) * 5 + zig;
-			pts.push(point(a.x + dx * t + nx * h, a.y + dy * t + ny * h));
+			const t = i / count, zig = zigzag && i > 0 && i < count ? (i % 2 ? 4 : -4) * RELATION_WIDTH_SCALE : 0;
+			const h = 4 * off * t * (1 - t) + offset + zig;
+			points.push(point(a.x + dx * t + nx * h, a.y + dy * t + ny * h));
 		}
-		paths.push(pts);
+		return points;
+	};
+	const push = (points, fill = "none") => {
+		paths.push(points);
+		fills.push(fill);
+	};
+	const addDashed = (points) => {
+		for (const segment of dashLine(points, 4, 3)) push(segment);
+	};
+	const kind = p.kind;
+	const visibleCenter = pathsOutsideSymbols([curve()], [start, end]);
+	if (!visibleCenter.length) return;
+	const lastCenter = visibleCenter[visibleCenter.length - 1];
+	const targetPoint = lastCenter[lastCenter.length - 1];
+	const endParameter = Math.max(0, Math.min(1, ((targetPoint.x - a.x) * dx + (targetPoint.y - a.y) * dy) / (len * len)));
+	if (kind === "cutoff" || kind === "cutoff_repaired" || kind === "estranged") {
+		const base = curve(), cut = Math.floor(count / 2), left = base.slice(0, Math.max(1, cut - 1)), right = base.slice(Math.min(count, cut + 2));
+		if (kind === "cutoff_repaired" || kind === "estranged") {
+			addDashed(left);
+			addDashed(right);
+		} else {
+			push(left);
+			push(right);
+		}
+		for (const d of [-5, 5]) push([point(mid.x + dx / len * d - nx * 7 * RELATION_WIDTH_SCALE, mid.y + dy / len * d - ny * 7 * RELATION_WIDTH_SCALE), point(mid.x + dx / len * d + nx * 7 * RELATION_WIDTH_SCALE, mid.y + dy / len * d + ny * 7 * RELATION_WIDTH_SCALE)]);
+		if (kind === "cutoff_repaired") push(ring(mid, 4 * RELATION_WIDTH_SCALE), "white");
+	} else {
+		if ([
+			"close",
+			"close_hostile",
+			"fused",
+			"fused_hostile",
+			"abuse_sexual"
+		].includes(kind)) {
+			push(curve(-6 * RELATION_WIDTH_SCALE));
+			push(curve(6 * RELATION_WIDTH_SCALE));
+		}
+		if (kind === "fused") push(curve());
+		else if (kind === "fused_hostile") {
+			push(curve());
+			push(curve(0, true));
+		} else if ([
+			"close_hostile",
+			"hostile",
+			"negative_focused",
+			"abuse_physical",
+			"abuse_emotional",
+			"abuse_sexual"
+		].includes(kind)) push(curve(0, true));
+		else if (kind === "distant") addDashed(curve());
+		else if (kind !== "close") push(curve());
+		if ([
+			"focused_on",
+			"negative_focused",
+			"caregiving",
+			"abuse_physical",
+			"abuse_emotional",
+			"abuse_sexual"
+		].includes(kind)) {
+			const arrow = (distance, filled) => {
+				const t = Math.max(0, endParameter - distance / len), h = 4 * off * t * (1 - t);
+				const tip = distance === 0 ? targetPoint : point(a.x + dx * t + nx * h, a.y + dy * t + ny * h);
+				const tx = dx + nx * 4 * off * (1 - 2 * t), ty = dy + ny * 4 * off * (1 - 2 * t), length = Math.hypot(tx, ty);
+				const ux = tx / length, uy = ty / length, back = point(tip.x - ux * 10, tip.y - uy * 10);
+				const left = point(back.x - uy * 5 * RELATION_WIDTH_SCALE, back.y + ux * 5 * RELATION_WIDTH_SCALE), right = point(back.x + uy * 5 * RELATION_WIDTH_SCALE, back.y - ux * 5 * RELATION_WIDTH_SCALE);
+				push(filled ? [
+					left,
+					tip,
+					right,
+					left
+				] : [
+					left,
+					tip,
+					right
+				], filled === "solid" ? "solid" : filled === "hollow" ? "white" : "none");
+			};
+			arrow(0, kind === "abuse_physical" || kind === "abuse_sexual" ? "solid" : kind === "abuse_emotional" ? "hollow" : false);
+			if (kind === "caregiving") arrow(12, false);
+		}
 	}
-	const mid = point((a.x + b.x) / 2 + nx * off, (a.y + b.y) / 2 + ny * off);
-	if (p.kind.startsWith("cutoff") || p.kind === "estranged") {
-		const ps = paths.shift(), cut = Math.floor(ps.length / 2);
-		paths.push(ps.slice(0, Math.max(1, cut - 1)), ps.slice(cut + 2));
-		for (const d of [-4, 4]) paths.push([point(mid.x + dx / len * d - nx * 8, mid.y + dy / len * d - ny * 8), point(mid.x + dx / len * d + nx * 8, mid.y + dy / len * d + ny * 8)]);
-	}
-	if (p.kind === "focused_on" || p.kind.startsWith("abuse")) paths.push([
-		point(b.x - dx / len * 12 + nx * 6, b.y - dy / len * 12 + ny * 6),
-		b,
-		point(b.x - dx / len * 12 - nx * 6, b.y - dy / len * 12 - ny * 6)
-	]);
 	return {
 		paths,
+		fills,
 		origin: mid,
-		label: p.label
+		label: p.label,
+		clipSymbols: [start, end]
 	};
 }
 function householdGeometry(p, id, v) {
@@ -1173,6 +1905,9 @@ var enumerations = {
 		"distant",
 		"hostile",
 		"fused_hostile",
+		"close_hostile",
+		"negative_focused",
+		"caregiving",
 		"cutoff",
 		"cutoff_repaired",
 		"estranged",
@@ -1198,7 +1933,25 @@ function make(kind, derive) {
 		textFields: kind === "parentage" ? [] : ["label"],
 		dependsOnCanonical: Object.values(ids),
 		dependsOnComputed: ["computed.layoutBounds", ...kind === "parentage" ? [`computed.${ids.union}`] : []],
-		derive,
+		derive(p, id, view) {
+			const geometry = derive(p, id, view);
+			if (!geometry || kind === "household") return geometry;
+			const paths = [], fills = [];
+			geometry.paths.forEach((path, index) => {
+				const outside = geometry.clipSymbols ? pathsOutsideSymbols([path], geometry.clipSymbols) : [path];
+				for (const candidate of outside) for (const visible of pathsAroundLabels([candidate], view)) {
+					const first = visible[0], last = visible[visible.length - 1];
+					const closed = first && last && Math.hypot(first.x - last.x, first.y - last.y) < 1e-8;
+					paths.push(visible);
+					fills.push(closed ? geometry.fills?.[index] ?? "none" : "none");
+				}
+			});
+			return {
+				...geometry,
+				paths,
+				fills
+			};
+		},
 		paintBounds: (g) => {
 			if (!g) return;
 			const b = bounds(g.paths, 20);
@@ -1211,31 +1964,10 @@ function make(kind, derive) {
 		},
 		renderSvg(p, g) {
 			if (!g || kind === "relation" && !lens.showRelations || kind === "household" && !lens.showHouseholds) return { svg: "" };
-			let paths = g.paths.map((ps) => `<path d="${pathData(ps)}"/>`).join("");
+			const color = (kind === "relation" || kind === "household") && typeof p.color === "string" && /^#[\da-f]{6}$/i.test(p.color) ? p.color : kind === "relation" ? "#dc2626" : "#334155";
+			const paths = g.paths.map((ps, index) => `<path d="${pathData(ps)}" fill="${g.fills?.[index] === "solid" ? color : g.fills?.[index] === "white" ? "white" : "none"}"/>`).join("");
 			const o = g.origin;
-			if (kind === "relation" && p.kind === "cutoff_repaired") paths += `<circle cx="${o.x}" cy="${o.y}" r="5"/>`;
-			if (kind === "union" && [
-				"separation",
-				"divorce",
-				"reunion_divorce",
-				"reunion_separation"
-			].includes(p.status)) {
-				const n = p.status.includes("divorce") ? 2 : 1;
-				for (let i = 0; i < n; i++) paths += `<path d="M ${o.x + i * 7 - 5} ${o.y + 8} l 10 -16"/>`;
-				if (p.status.startsWith("reunion")) paths += `<circle cx="${o.x}" cy="${o.y}" r="12"/>`;
-			}
-			let dash = kind === "household" || [
-				"distant",
-				"estranged",
-				"abuse_emotional"
-			].includes(p.kind) || [
-				"cohabitation",
-				"engagement",
-				"secret_affair"
-			].includes(p.status) || ["adopted", "foster"].includes(p.pedigree) ? " stroke-dasharray=\"6 4\"" : "";
-			if (kind === "household" && p.strokeStyle === "dotted") dash = " stroke-dasharray=\"1 5\" stroke-linecap=\"round\"";
-			if (kind === "relation" && p.kind === "abuse_sexual") paths += `<circle cx="${o.x}" cy="${o.y}" r="6"/>`;
-			return { svg: `<g fill="none" stroke="${kind === "household" && /^#[\da-f]{6}$/i.test(p.color) ? p.color : "#334155"}" stroke-width="2" stroke-linejoin="round"${dash}>${paths}</g><text x="${o.x}" y="${o.y - 8}" font-family="sans-serif" font-size="12">${escapeXml(display(g.label))}</text>` };
+			return { svg: `<g fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"${kind === "household" ? p.strokeStyle === "dotted" ? " stroke-dasharray=\"1 5\" stroke-linecap=\"round\"" : " stroke-dasharray=\"6 4\"" : ""}>${paths}</g><text x="${o.x}" y="${o.y - 8}" font-family="sans-serif" font-size="12">${escapeXml(display(g.label))}</text>` };
 		},
 		selection: {
 			priority: 20,
@@ -1265,9 +1997,28 @@ function make(kind, derive) {
 				placement: "inspector",
 				options: values.map((value) => ({
 					value,
-					label: labels$1[value] ?? value
+					label: labels$1[value] ?? value,
+					...kind === "relation" && field === "kind" ? { icon: relationshipIcons[value] } : {}
 				}))
 			})),
+			...kind === "relation" ? [{
+				id: "relationship-floating",
+				kind: "segmented",
+				field: "kind",
+				label: "정서 관계",
+				placement: "selection-bar",
+				options: enumerations.relation.kind.map((value) => ({
+					value,
+					label: labels$1[value] ?? value,
+					icon: relationshipIcons[value]
+				}))
+			}] : [],
+			...kind === "relation" ? [{
+				kind: "color",
+				field: "color",
+				label: "관계선 색상",
+				placement: "inspector"
+			}] : [],
 			...kind === "parentage" ? [] : [{
 				kind: "text",
 				field: "label",
@@ -1456,15 +2207,11 @@ function familyCommands(context, preferences) {
 				twinType: "fraternal"
 			}));
 		} else if (name.startsWith("relation-")) {
-			const [a, b] = requirePeople(2), count = all("relation").filter((e) => {
-				const p = prop(e, "relation");
-				return p.from === a && p.to === b || p.from === b && p.to === a;
-			}).length;
+			const [a, b] = requirePeople(2);
 			focus = entity(ops, "relation", {
 				from: a,
 				to: b,
-				kind: name.slice(9),
-				curveOffset: 28 * (count + 1)
+				kind: name.slice(9)
 			});
 		} else if (name === "reverse") for (const e of selected()) {
 			const p = prop(e, "relation");
@@ -1637,11 +2384,15 @@ var src_default = {
 				"show-relations",
 				"show-households",
 				"show-notes"
-			].includes(name) ? "settings" : floating ? "selection-bar" : "inspector",
+			].includes(name) || name.startsWith("template-") ? "settings" : floating ? "selection-bar" : "inspector",
 			...aspectId ? { aspectId } : {},
+			...!global && !floating ? {
+				section: name.startsWith("relation-") ? "정서 관계 만들기" : name === "reverse" ? "관계 편집" : name === "toggle-membership" ? "가구 편집" : "가족 구성",
+				sectionCollapsed: true
+			} : {},
 			requiresSelection: !global,
-			minSelectionCount: floating ? 2 : global ? 0 : 1,
-			...name.startsWith("connect-") ? { maxSelectionCount: 2 } : {}
+			minSelectionCount: floating || name.startsWith("relation-") || name === "connect-twins" || name === "toggle-membership" ? 2 : global ? 0 : 1,
+			...name.startsWith("connect-") || name.startsWith("relation-") ? { maxSelectionCount: 2 } : {}
 		};
 	}) },
 	activate(context) {

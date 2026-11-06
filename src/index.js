@@ -84,15 +84,16 @@ export default {
                   "show-relations",
                   "show-households",
                   "show-notes",
-                ].includes(name)
+                ].includes(name) || name.startsWith("template-")
               ? "settings"
               : floating
                 ? "selection-bar"
                 : "inspector",
         ...(aspectId ? { aspectId } : {}),
+        ...(!global && !floating ? { section: name.startsWith("relation-") ? "정서 관계 만들기" : name === "reverse" ? "관계 편집" : name === "toggle-membership" ? "가구 편집" : "가족 구성", sectionCollapsed: true } : {}),
         requiresSelection: !global,
-        minSelectionCount: floating ? 2 : global ? 0 : 1,
-        ...(name.startsWith("connect-") ? { maxSelectionCount: 2 } : {}),
+        minSelectionCount: floating || name.startsWith("relation-") || name === "connect-twins" || name === "toggle-membership" ? 2 : global ? 0 : 1,
+        ...(name.startsWith("connect-") || name.startsWith("relation-") ? { maxSelectionCount: 2 } : {}),
       };
     }),
   },
