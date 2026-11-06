@@ -59,7 +59,7 @@ try {
   });
   world.registerCanonical({
     id: "core.bounds",
-    defaults: { width: 100, height: 120 },
+    defaults: { width: 300 }, optionalFields: ['height'],
   });
   world.registerComputed({
     id: "computed.layoutBounds",
