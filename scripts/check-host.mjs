@@ -180,7 +180,7 @@ try {
   assert.equal(world.isAlive(personId), false);
   assert.equal(core.undo(), true); world.replaceCanonicalSnapshot(core.get_canonical_json());
   assert.equal(core.dump_canonical_jsonl(), beforePlan, 'one Undo restores person and cascaded relationships');
-  offTools(); toolRegistry.dispose(); lifetime.abort();
+  offTools();
   const unionId = world.listEntityIds().find(id => world.getCanonical(id, "diagram.genogram.union"));
   const parentId = world.getCanonical(unionId, "diagram.genogram.union").partnerA;
   world.applyCanonicalTransaction("test:label-clear", [{ id: parentId, aspect: "diagram.genogram.person", patch: { name: "", yearSpan: "", note: "" } }]);
@@ -207,6 +207,20 @@ try {
   assert.ok(
     world.getComputed(parentageId, "computed.diagram.genogram.parentage"),
   );
+  const postDeleteAccess = toolRegistry.forExtension('diagram.genogram', plugin.aspects.map(a => a.id), () => {}, () => true);
+  const offPostDelete = registerGenogramTools({ world, services: { get: () => postDeleteAccess } });
+  // Remove the child through the ordinary host path, retaining its cascade-hidden link.
+  world.applyCanonicalTransaction('test:delete-child', [{ id: p.child, aspect: 'diagram.genogram.person', patch: null }]);
+  assert.equal(world.isAlive(parentageId), false);
+  assert.ok(world.exportCanonicalSnapshot()[parentageId], 'hidden relationship remains canonical for Undo');
+  const beforeRetry = core.dump_canonical_jsonl(), retryCommits = commits;
+  const retry = await postDeleteAccess.invoke('diagram.genogram:plan-changes', { actions: JSON.stringify([
+    { action: 'create', kind: 'person', id: 'p1', patch: { name: '이재명', symbol: 'male', isIndexPerson: true }, x: 120, y: 120 },
+  ]) }, lifetime.signal);
+  assert.equal(core.dump_canonical_jsonl(), beforeRetry);
+  assert.equal(commits, retryCommits, 'retry only prepares approval');
+  assert.equal(retry.operations.length, 3);
+  offPostDelete(); toolRegistry.dispose(); lifetime.abort();
   runtime.dispose();
   core.free();
   const manifest = JSON.parse(

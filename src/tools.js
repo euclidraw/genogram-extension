@@ -43,7 +43,7 @@ export function registerGenogramTools(context) {
       });
     register("schema", "가계도 genogram defaults, enum values and batch action format (read-only).", {}, [], () => ({ defaults, enums, ids,
       enumerations,
-      instructions: "Create person with x/y; create union with partnerA/B; parentage with parentA/B, child, union; relation with from/to/kind. plan-changes previews the complete atomic batch for user approval. Never infer sensitive attributes." }));
+      instructions: 'Pass actions as a JSON array encoded in a string, not as an array value. Example decoded array: [{"action":"create","kind":"person","id":"p1","patch":{"name":"Kim","symbol":"male","isIndexPerson":true},"x":120,"y":120}]. Use isIndexPerson:true only when requested as the client/index person; symbol, not gender, selects the symbol. Create union with partnerA/B; parentage with parentA/B, child, union; relation with from/to/kind. plan-changes previews the complete atomic batch for user approval. Never infer sensitive attributes.' }));
     for (const [kind, aspect] of Object.entries(ids)) off.push(tools.registerDescriptor({
       aspect,
       description: `가계도 genogram ${kind}. References are entity IDs, not names. Do not infer clinical diagnoses. Use plan-changes for creation/deletion/structure/layout with explicit user approval; no direct mutation tools.`,
@@ -83,6 +83,11 @@ export function registerGenogramTools(context) {
 export function planGenogramChanges(world, actions) {
   if (!Array.isArray(actions) || !actions.length || actions.length > 50) throw Error("INVALID_INPUT: actions budget");
   const snapshot = world.exportCanonicalSnapshot(), next = structuredClone(snapshot), aliases = new Map(), ops = [];
+  // Use the host's reference projection (including nullify) for graph checks,
+  // while leaving the authoritative canonical snapshot and approval read set intact.
+  for (const [id, entity] of Object.entries(next)) if (world.isAlive(id)) {
+    for (const aspect of Object.values(ids)) if (entity[aspect]) entity[aspect] = structuredClone(world.getCanonical(id, aspect));
+  }
   const resolve = id => aliases.get(id) ?? id;
   for (const action of actions) {
     if (!action || typeof action !== "object" || Array.isArray(action)) throw Error("INVALID_INPUT: action");
@@ -104,7 +109,7 @@ export function planGenogramChanges(world, actions) {
     if (!action || typeof action !== "object") throw Error("INVALID_INPUT: action");
     const id = action.action === "create" ? newIds[createIndex++] : resolve(action.id);
     if (typeof id !== "string" || !id) throw Error("INVALID_INPUT: id");
-    if (action.action !== "create" && !Object.values(ids).some(aspect => next[id]?.[aspect])) throw Error("INVALID_INPUT: missing genogram entity");
+    if (action.action !== "create" && (!Object.values(ids).some(aspect => next[id]?.[aspect]) || Object.hasOwn(snapshot, id) && !world.isAlive(id))) throw Error("INVALID_INPUT: missing genogram entity");
     if (action.action === "delete") { push(id, ids.person, null); continue; }
     if (action.action === "move") {
       if (!next[id]?.[ids.person] || !Number.isFinite(action.x) || !Number.isFinite(action.y) || Math.abs(action.x) > 1e7 || Math.abs(action.y) > 1e7) throw Error("INVALID_INPUT: person position");
@@ -144,7 +149,11 @@ export function planGenogramChanges(world, actions) {
     if (deleted.has(entity[ids.person]?.householdId)) push(id, ids.person, { householdId: null });
     if (deleted.has(entity[ids.parentage]?.twinWith)) push(id, ids.parentage, { twinWith: null, twinType: "none" });
   }
-  validateGraph(next);
+  // Canonical snapshots retain cascade-hidden relationships for Undo. They are
+  // not part of the live graph and must not block unrelated new proposals.
+  // Still validate every touched/new entity so invalid new references fail closed.
+  const touched = new Set(ops.map(op => op.id));
+  validateGraph(Object.fromEntries(Object.entries(next).filter(([id]) => touched.has(id) || world.isAlive(id))));
   if (ops.length > 100) throw Error("INVALID_INPUT: operation budget");
   return ops;
 }

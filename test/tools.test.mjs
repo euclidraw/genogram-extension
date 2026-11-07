@@ -12,6 +12,29 @@ test('plans people, family structure, emotional relations and positions without 
   assert.equal(ops.find(op => op.aspect === ids.union).patch.partnerA, ops[0].id);
   assert.deepEqual(world.exportCanonicalSnapshot(), {});
 });
+test('plans the reported single person payload on an empty document', () => {
+  const ops = planGenogramChanges(fixture(), JSON.parse('[{"action":"create","kind":"person","id":"p1","patch":{"name":"이재명","symbol":"male","isIndexPerson":true},"x":120,"y":120}]'));
+  assert.equal(ops.length, 3);
+  assert.equal(ops[0].patch.name, '이재명');
+  assert.equal(ops[0].patch.isIndexPerson, true);
+});
+test('unrelated creation ignores cascade-hidden canonical relationships without removing them', () => {
+  const snapshot = { orphan: { [ids.parentage]: { ...defaults.parentage, parentA: 'deleted-parent', child: 'deleted-child' } } };
+  const world = { ...fixture(snapshot), isAlive: () => false };
+  const ops = planGenogramChanges(world, [create('person', 'p1', { name: '이재명', symbol: 'male', isIndexPerson: true }, { x: 120, y: 120 })]);
+  assert.equal(ops.length, 3);
+  assert.ok(ops.every(op => op.id !== 'orphan'));
+  assert.deepEqual(world.exportCanonicalSnapshot(), snapshot);
+  assert.throws(() => planGenogramChanges(world, [{ action: 'update', id: 'orphan', kind: 'parentage', patch: { child: 'p1' } }]), /missing genogram/);
+});
+test('graph checks use nullified references from the live projection', () => {
+  const snapshot = { a: { [ids.person]: { ...defaults.person } }, child: { [ids.person]: { ...defaults.person } }, link: { [ids.parentage]: { ...defaults.parentage, parentA: 'a', parentB: 'deleted', child: 'child' } } };
+  const world = fixture(snapshot), read = world.getCanonical;
+  world.getCanonical = (id, aspect) => id === 'link' && aspect === ids.parentage ? { ...snapshot.link[aspect], parentB: null } : read(id, aspect);
+  assert.equal(planGenogramChanges(world, [create('person', 'new')]).length, 3);
+  assert.equal(snapshot.link[ids.parentage].parentB, 'deleted');
+  assert.throws(() => planGenogramChanges(world, [create('parentage', 'bad', { parentA: 'deleted', child: 'child' })]), /parentage/);
+});
 test('deletion cascades relationships and clears household and twin links', () => {
   const snapshot = { a: { [ids.person]: { ...defaults.person } }, b: { [ids.person]: { ...defaults.person } }, u: { [ids.union]: { ...defaults.union, partnerA: 'a', partnerB: 'b' } }, r: { [ids.relation]: { ...defaults.relation, from: 'a', to: 'b' } } };
   const ops = planGenogramChanges(fixture(snapshot), [{ action: 'delete', id: 'a' }]);

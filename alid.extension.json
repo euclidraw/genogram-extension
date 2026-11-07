@@ -51,7 +51,7 @@
       "defaultValue": true
     }
   ],
-  "version": "0.1.3",
+  "version": "0.1.4",
   "engine": "^0.1.1",
   "dependencies": {},
   "optionalDependencies": {},
@@ -70,7 +70,7 @@
   "title": "가계도",
   "summary": "상담용 인물 기호와 가족 관계를 작성합니다.",
   "entry": "dist/plugin.js",
-  "sha256": "f8177fad408237a196a656708dacdef70a299e81e369a153d3c2afde8ffd9bf9",
+  "sha256": "74fbd5e4a81353f55cbbe254d88724f58d131acdf5029425256ceded51b315ad",
   "aspectIds": [
     "diagram.genogram.person",
     "diagram.genogram.union",
